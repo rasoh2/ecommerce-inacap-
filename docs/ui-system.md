@@ -161,10 +161,10 @@ Diseño de doble columna: contenidos y galería a la izquierda (columna ancha), 
 ### Maquetación de la Vista de Detalle
 
 ```html
-<div class="ml-detail-layout">
+<div class="row g-4 ml-detail-layout">
   
-  <!-- Columna Izquierda: Galería e Información Técnica -->
-  <div class="ml-detail-column-left">
+  <!-- Columna Izquierda: Galería e Información Técnica (Bootstrap .col-md-8) -->
+  <div class="col-md-8 ml-detail-column-left">
     
     <!-- Contenedor de Galería e Imagen Principal -->
     <div class="ml-gallery-container">
@@ -188,8 +188,8 @@ Diseño de doble columna: contenidos y galería a la izquierda (columna ancha), 
 
   </div>
 
-  <!-- Columna Derecha: Caja de Compra Flotante (Sticky) -->
-  <aside class="ml-detail-column-right">
+  <!-- Columna Derecha: Caja de Compra Flotante (Sticky - Bootstrap .col-md-4) -->
+  <aside class="col-md-4 ml-detail-column-right">
     <div class="ml-buy-box sticky-top">
       
       <!-- Condición e Historial -->
@@ -263,10 +263,10 @@ Un diseño de dos bloques optimizado para evitar distracciones en el cierre de l
 ### Estructura de Carrito y Resumen de Totales
 
 ```html
-<div class="ml-cart-layout">
+<div class="row g-4 ml-cart-layout">
   
-  <!-- Bloque Principal Izquierdo: Lista de Productos en Carrito -->
-  <main class="ml-cart-items-panel">
+  <!-- Bloque Principal Izquierdo: Lista de Productos (Bootstrap .col-md-8) -->
+  <main class="col-md-8 ml-cart-items-panel">
     <h2 class="ml-cart-headline">Productos en tu carrito</h2>
     
     <div class="ml-cart-list" id="cart-items-container" role="list">
@@ -299,8 +299,8 @@ Un diseño de dos bloques optimizado para evitar distracciones en el cierre de l
     </div>
   </main>
 
-  <!-- Bloque de Resumen de Compra Derecho -->
-  <aside class="ml-cart-summary-panel">
+  <!-- Bloque de Resumen de Compra Derecho (Bootstrap .col-md-4) -->
+  <aside class="col-md-4 ml-cart-summary-panel">
     <div class="ml-summary-card">
       <h3 class="ml-summary-title">Resumen de compra</h3>
       
@@ -347,7 +347,7 @@ Un diseño de dos bloques optimizado para evitar distracciones en el cierre de l
         </div>
 
         <button type="submit" class="ml-btn-checkout-submit" id="btn-submit-checkout" disabled>
-          Confirmar Compra
+          Continuar compra
         </button>
       </form>
     </div>

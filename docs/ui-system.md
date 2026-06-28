@@ -1,260 +1,521 @@
-# Sistema de Diseño y Guía de Interfaz (UX/UI Spec)
+# Sistema de Diseño y Guía de Interfaz (UX/UI Spec - Estilo Mercado Libre)
 
-**Enfoque Visual:** Modo Oscuro Premium (Deep Dark / Cyberpunk Minimalist)  
-**Tecnologías:** HTML5 Semántico, Vanilla CSS, Bootstrap 5 (Clases de utilidad y layout)  
-**Estado:** Aprobado para Implementación  
+**Enfoque Visual:** Mercado Libre Clean Design (Fondo Gris Claro / Header Amarillo Institucional)  
+**Tecnologías:** HTML5 Semántico, Vanilla CSS, Bootstrap 5 (Clases de utilidad y layout flex/grid)  
+**Estado:** Aprobado para Implementación de Alta Conversión  
 
 ---
 
-## 1. Guía de Diseño Visual (Modo Oscuro)
+## 1. Guía de Diseño Visual y Paleta de Colores
 
-Para lograr un acabado premium y profesional, se define una paleta de colores de alto contraste que cumple con las directrices de accesibilidad **WCAG AA** (contraste mínimo de 4.5:1 para texto normal y 3:1 para texto grande).
+Para optimizar la tasa de conversión (CRO) y replicar la experiencia de usuario familiar de Mercado Libre, se define una interfaz limpia basada en contrastes marcados, bordes redondeados suaves y tipografía de lectura rápida.
 
 ### A. Paleta de Colores
-* **Fondo Base (Body):** `#090d16` (Slate Black)
-  - *Uso:* Fondo general de la aplicación.
-* **Fondo Superficie (Tarjetas/Paneles):** `#111827` (Slate Gray)
-  - *Uso:* Tarjetas de producto, barra lateral del carrito y modales.
-* **Color Primario (Accento/Marca):** `#6366f1` (Indigo Neon)
-  - *Uso:* Botones principales, enlaces activos y bordes de enfoque.
-* **Color Secundario (Éxito/Confirmación):** `#10b981` (Emerald Green)
-  - *Uso:* Botones de checkout exitoso, insignias de stock e indicadores de éxito.
-* **Color de Error/Alerta:** `#ef4444` (Ruby Red)
-  - *Uso:* Mensajes de error en formularios y alertas de fallos de red.
-* **Texto Principal:** `#f8fafc` (Off-White) - Contraste superior a 10:1 sobre el fondo base.
-* **Texto Secundario/Muted:** `#94a3b8` (Muted Blue-Gray) - Contraste superior a 5.5:1 sobre el fondo base.
+* **Amarillo Institucional (Header):** `#FFF159`
+  - *Uso:* Fondo de la barra de navegación superior (Header). Aporta identidad de marca instantánea.
+* **Fondo Base (Body):** `#EFEFEF` o `#F5F5F5`
+  - *Uso:* Fondo general de la aplicación, dando relieve a las tarjetas de contenido blancas.
+* **Azul de Acción (Primario/Botones/Enlaces):** `#3483FA`
+  - *Uso:* Botón "Comprar ahora", enlaces activos, botones de llamada a la acción principal (CTA) y enfoque.
+* **Azul Secundario (Fondo de Acción):** `#E3EDFB`
+  - *Uso:* Fondo del botón "Agregar al carrito" secundario o elementos interactivos de menor jerarquía.
+* **Verde de Envío Gratis/Descuentos:** `#00A650`
+  - *Uso:* Texto e íconos de "Envío gratis", etiquetas de descuento y estados de éxito.
+* **Blanco Puro (Superficie/Tarjetas):** `#FFFFFF`
+  - *Uso:* Tarjetas de producto, contenedor de detalles, caja de compra sticky y barra de checkout.
+* **Texto Principal:** `#333333` (Gris casi negro)
+  - *Uso:* Títulos principales, precios destacados y textos de alta relevancia.
+* **Texto Secundario/Muted:** `#666666` (Gris medio)
+  - *Uso:* Descripciones secundarias, especificaciones y subtítulos de menor peso.
+* **Gris de Borde:** `#E6E6E6`
+  - *Uso:* Bordes divisores sutiles y contornos de tarjetas.
 
 ### B. Tipografía
 * **Fuentes Recomendadas:**
-  - Primaria: `'Outfit', sans-serif` (Google Fonts) - Aporta un aire moderno y tecnológico.
-  - Secundaria: `'Inter', sans-serif` (Google Fonts) - Utilizada para textos largos y formularios por su alta legibilidad.
+  - Primaria: `'Inter', sans-serif` (Google Fonts) - Alternativa premium de alta legibilidad a Proxima Nova.
 * **Escala de Tamaños:**
-  - `h1` (Título Principal): `2.25rem` (36px) | SemiBold (600)
-  - `h2` (Títulos de Sección): `1.5rem` (24px) | Medium (500)
-  - `h3` (Títulos de Tarjetas): `1.125rem` (18px) | Medium (500)
-  - `body` (Texto Base): `1rem` (16px) | Regular (400)
-  - `small` (Textos de ayuda/error): `0.875rem` (14px) | Regular (400)
-
-### C. Espaciado y Rejilla (Grid System)
-* Sistema basado en escala de potencia de 2 (`4px`, `8px`, `16px`, `24px`, `32px`, `48px`).
-* Utilización del sistema de rejilla flexbox de **Bootstrap 5** (`container`, `row`, `col-md-*`).
-* Márgenes consistentes: `mb-4` para separación de secciones, `p-3` para padding interno de tarjetas.
+  - Título Detalle de Producto: `1.625rem` (26px) | SemiBold (600)
+  - Precio Destacado: `2rem` (32px) | Regular/Light (300/400)
+  - Título Tarjeta Catálogo: `0.875rem` (14px) | Regular (400)
+  - Textos de Envío/Cuotas: `0.8125rem` (13px) | Regular (400)
 
 ---
 
-## 2. Estructura Semántica HTML5
+## 2. Cabecera (Header) de Alta Conversión
 
-La estructura garantiza la accesibilidad (lectores de pantalla) y el orden semántico del código.
+Una barra superior fija de dos filas con ancho completo que organiza los accesos de búsqueda, ubicación y perfil.
 
-### A. Estructura Principal (`index.html`)
+### Estructura Semántica HTML5 del Header
+
 ```html
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CyberShop - E-commerce Premium</title>
-  <!-- Google Fonts & Bootstrap 5 CSS -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/index.css">
-</head>
-<body class="bg-base text-main">
+<header class="ml-header">
+  <div class="container ml-header-container">
+    
+    <!-- Fila Superior: Identidad, Búsqueda y Beneficios -->
+    <div class="ml-header-row-top">
+      <!-- Logo -->
+      <a href="#" class="ml-logo" aria-label="Volver a Inicio">
+        <span class="ml-logo-text">CyberShop</span>
+      </a>
 
-  <!-- Encabezado de Navegación -->
-  <header class="navbar navbar-expand-lg sticky-top border-bottom border-dark">
-    <div class="container">
-      <a class="navbar-brand text-brand fs-4" href="#">CyberShop</a>
-      <button class="btn btn-primary position-relative" id="btn-toggle-cart" aria-label="Abrir carrito">
-        Carrito
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-badge">0</span>
-      </button>
-    </div>
-  </header>
+      <!-- Barra de Búsqueda Prominente -->
+      <form class="ml-search-bar" role="search">
+        <input type="text" placeholder="Buscar productos, marcas y más..." aria-label="Buscar productos" id="search-input">
+        <button type="submit" class="ml-search-btn" aria-label="Buscar">
+          <i class="ml-icon-search">🔍</i>
+        </button>
+      </form>
 
-  <!-- Área de Contenido Principal -->
-  <main class="container my-5">
-    <div class="row g-4">
-      
-      <!-- Sección del Catálogo (Izquierda) -->
-      <section class="col-lg-8" id="catalog-section" aria-labelledby="catalog-title">
-        <h2 class="mb-4 text-brand" id="catalog-title">Catálogo de Productos</h2>
-        <!-- Contenedor dinámico de productos -->
-        <div class="row row-cols-1 row-cols-md-2 g-4" id="products-container">
-          <!-- Renderizado dinámico desde JS -->
-        </div>
-      </section>
-
-      <!-- Sección Lateral del Carrito y Checkout (Derecha) -->
-      <aside class="col-lg-4" id="cart-sidebar" aria-labelledby="cart-title">
-        <div class="card bg-surface border-dark p-4 sticky-top-offset">
-          <h2 class="h4 mb-4 text-brand" id="cart-title">Tu Carrito</h2>
-          
-          <!-- Lista de Items en el Carrito -->
-          <div class="cart-items-list mb-4" id="cart-items-container" role="list">
-            <!-- Renderizado dinámico desde JS -->
-          </div>
-
-          <!-- Resumen de Totales -->
-          <div class="border-top border-dark pt-3 mb-4">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Subtotal</span>
-              <span id="cart-subtotal">$0</span>
-            </div>
-            <div class="d-flex justify-content-between fw-bold fs-5">
-              <span>Total</span>
-              <span class="text-success" id="cart-total">$0</span>
-            </div>
-          </div>
-
-          <!-- Formulario de Checkout (Al menos 3 campos obligatorios) -->
-          <form id="checkout-form" class="needs-validation" novalidate>
-            <div class="mb-3">
-              <label for="checkout-name" class="form-label">Nombre Completo</label>
-              <input type="text" class="form-control bg-dark border-dark text-white" id="checkout-name" required placeholder="Juan Pérez">
-              <div class="invalid-feedback" id="name-feedback">El nombre es obligatorio y debe tener al menos 3 caracteres.</div>
-            </div>
-            
-            <div class="mb-3">
-              <label for="checkout-email" class="form-label">Correo Electrónico</label>
-              <input type="email" class="form-control bg-dark border-dark text-white" id="checkout-email" required placeholder="juan@example.com">
-              <div class="invalid-feedback" id="email-feedback">Por favor introduce un correo válido.</div>
-            </div>
-
-            <div class="mb-3">
-              <label for="checkout-payment" class="form-label">Método de Pago</label>
-              <select class="form-select bg-dark border-dark text-white" id="checkout-payment" required>
-                <option value="" disabled selected>Selecciona una opción...</option>
-                <option value="transferencia">Transferencia Bancaria</option>
-                <option value="tarjeta">Tarjeta de Crédito/Débito</option>
-                <option value="efectivo">Pago en Efectivo (Contra Entrega)</option>
-              </select>
-              <div class="invalid-feedback">Por favor selecciona un método de pago.</div>
-            </div>
-
-            <button type="submit" class="btn btn-success w-100 py-2 fs-5" id="btn-submit-checkout" disabled>
-              Confirmar Compra
-            </button>
-          </form>
-
-        </div>
-      </aside>
-
-    </div>
-  </main>
-
-  <!-- Modal de Detalle de Producto -->
-  <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content bg-surface border-dark text-white">
-        <div class="modal-header border-dark">
-          <h5 class="modal-title" id="detail-product-title">Detalle del Producto</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body" id="detail-product-body">
-          <!-- Renderizado dinámico desde JS -->
-        </div>
+      <!-- Banner de Beneficios a la Derecha -->
+      <div class="ml-header-promo">
+        <span class="ml-promo-text">🚚 Envíos gratis en 24h</span>
       </div>
     </div>
-  </div>
 
-  <footer class="text-center py-4 border-top border-dark mt-auto">
-    <p class="text-muted small mb-0">&copy; 2026 CyberShop. Evaluación Sumativa N°2 - INACAP Maipú.</p>
-  </footer>
+    <!-- Fila Inferior: Ubicación, Menús y Carrito -->
+    <div class="ml-header-row-bottom">
+      <!-- Selector de Ubicación/Comuna -->
+      <div class="ml-delivery-location">
+        <span class="ml-location-pin">📍</span>
+        <div class="ml-location-info">
+          <span class="ml-location-label">Enviar a</span>
+          <span class="ml-location-value" id="current-location">Santiago, Chile</span>
+        </div>
+      </div>
 
-  <!-- Bootstrap Bundle with Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/app.js" type="module"></script>
-</body>
-</html>
-```
+      <!-- Menú de Categorías Desplegable -->
+      <nav class="ml-categories-nav">
+        <ul class="ml-nav-list">
+          <li class="ml-nav-item dropdown">
+            <a href="#" class="ml-nav-link dropdown-toggle" id="categoriesDropdown">Categorías</a>
+          </li>
+          <li class="ml-nav-item"><a href="#" class="ml-nav-link">Ofertas</a></li>
+          <li class="ml-nav-item"><a href="#" class="ml-nav-link">Historial</a></li>
+          <li class="ml-nav-item"><a href="#" class="ml-nav-link">Ayuda</a></li>
+        </ul>
+      </nav>
 
-### B. Elemento Tarjeta de Producto (`<article>`)
-Para cumplir estrictamente con el criterio de manipulación dinámica del DOM, el catálogo renderizará el siguiente nodo estructurado por cada elemento:
-```html
-<article class="col" id="product-card-{id}">
-  <div class="card h-100 bg-surface border-dark card-hover-effect">
-    <img src="{imageUrl}" class="card-img-top p-3 rounded" alt="{name}" loading="lazy">
-    <div class="card-body d-flex flex-column">
-      <span class="badge bg-indigo-muted align-self-start mb-2">{category}</span>
-      <h3 class="h5 card-title text-main">{name}</h3>
-      <p class="card-text text-muted small flex-grow-1">{description}</p>
-      <div class="d-flex justify-content-between align-items-center mt-3">
-        <span class="fs-5 fw-bold text-success">${price}</span>
-        <button class="btn btn-sm btn-outline-primary btn-add-cart" data-id="{id}">
-          Añadir al Carrito
+      <!-- Accesos de Usuario y Carrito -->
+      <div class="ml-user-menu">
+        <a href="#" class="ml-user-link">Crear cuenta</a>
+        <a href="#" class="ml-user-link">Ingresar</a>
+        <a href="#" class="ml-user-link">Mis compras</a>
+        
+        <!-- Carrito de Compras Dinámico -->
+        <button class="ml-cart-trigger" id="btn-toggle-cart" aria-label="Ver carrito">
+          <span class="ml-cart-icon">🛒</span>
+          <span class="ml-cart-badge" id="cart-badge">0</span>
         </button>
       </div>
     </div>
+
+  </div>
+</header>
+```
+
+---
+
+## 3. Grilla del Catálogo (Product Grid)
+
+Fondo gris claro (`#EFEFEF`) con tarjetas individuales blancas que organizan los elementos visuales de forma vertical.
+
+### Estructura de Tarjeta de Producto (`<article>`)
+
+```html
+<article class="ml-product-card" id="product-card-{id}">
+  <!-- Contenedor blanco cuadrado perfecto de imagen -->
+  <div class="ml-card-img-container">
+    <img src="{imageUrl}" alt="{name}" class="ml-card-img" loading="lazy">
+  </div>
+  
+  <!-- Cuerpo de la Tarjeta con detalles técnicos -->
+  <div class="ml-card-body">
+    <!-- Envío gratis destacado en verde en la parte superior del texto -->
+    <div class="ml-card-shipping-tag">
+      <span class="ml-free-shipping-text">Envío gratis</span>
+    </div>
+    
+    <!-- Precio en tamaño grande y cuotas sin interés -->
+    <div class="ml-card-price-container">
+      <span class="ml-product-price">${price}</span>
+      <span class="ml-product-installments">en 6x sin interés</span>
+    </div>
+    
+    <!-- Título corto limitado a 2 líneas -->
+    <h3 class="ml-product-title">{name}</h3>
+    
+    <!-- Botón secundario para ver detalle rápido -->
+    <button class="btn-detail-trigger ml-btn-secondary" data-id="{id}">
+      Ver detalle
+    </button>
   </div>
 </article>
 ```
 
 ---
 
-## 3. Comportamientos Interactivos y Estados de la UI
+## 4. Vista de Detalle de Producto Asimétrica
 
-### A. Estado de Carga (Skeletons)
-Mientras el cliente consulta `GET /api/products`, se inyectarán placeholders que simulan la forma física de las tarjetas para reducir la percepción de espera (Perceived Performance).
+Diseño de doble columna: contenidos y galería a la izquierda (columna ancha), caja de compra fija (sticky) a la derecha (columna estrecha).
 
-* **Clase CSS de animación (Pulsado):**
-  ```css
-  @keyframes pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 0.25; }
-  }
-  .skeleton {
-    animation: pulse 1.5s infinite ease-in-out;
-    background-color: #1e293b;
-    border-radius: 4px;
-  }
-  ```
-* **HTML del Skeleton del Catálogo:**
-  ```html
-  <div class="col skeleton-card-placeholder">
-    <div class="card h-100 bg-surface border-dark p-3">
-      <div class="skeleton img-placeholder mb-3" style="height: 150px; width: 100%;"></div>
-      <div class="skeleton title-placeholder mb-2" style="height: 20px; width: 80%;"></div>
-      <div class="skeleton desc-placeholder mb-3" style="height: 40px; width: 100%;"></div>
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="skeleton price-placeholder" style="height: 24px; width: 30%;"></div>
-        <div class="skeleton button-placeholder" style="height: 32px; width: 40%;"></div>
+### Maquetación de la Vista de Detalle
+
+```html
+<div class="ml-detail-layout">
+  
+  <!-- Columna Izquierda: Galería e Información Técnica -->
+  <div class="ml-detail-column-left">
+    
+    <!-- Contenedor de Galería e Imagen Principal -->
+    <div class="ml-gallery-container">
+      <!-- Carrusel de Miniaturas a la izquierda -->
+      <div class="ml-thumbnails-panel">
+        <button class="ml-thumbnail-btn active"><img src="{imageUrl1}" alt="Vista 1"></button>
+        <button class="ml-thumbnail-btn"><img src="{imageUrl2}" alt="Vista 2"></button>
+        <button class="ml-thumbnail-btn"><img src="{imageUrl3}" alt="Vista 3"></button>
+      </div>
+      <!-- Imagen Ampliada Central -->
+      <div class="ml-main-image-viewport">
+        <img src="{imageUrl}" alt="{name}" id="main-detail-image">
       </div>
     </div>
+
+    <!-- Separador y Descripción Técnica -->
+    <section class="ml-technical-description">
+      <h2 class="ml-section-title">Descripción</h2>
+      <p class="ml-description-text">{description}</p>
+    </section>
+
   </div>
-  ```
 
-### B. Manejo Visual de Errores de Red
-Si falla la llamada a la API (error 500, problemas de conexión o servidor inactivo):
-1. **En el Catálogo:**
-   - Se removerán los skeletons.
-   - Se inyectará un bloque de alerta responsiva con la opción de reintentar la carga.
-   ```html
-   <div class="col-12 text-center my-5" id="catalog-error-container">
-     <div class="alert alert-danger-custom d-inline-block p-4 border border-danger rounded" role="alert">
-       <h3 class="h5 text-danger mb-2">Error de conexión</h3>
-       <p class="mb-3 text-muted">No pudimos obtener el catálogo de productos. Revisa tu conexión a internet.</p>
-       <button class="btn btn-danger btn-sm" id="btn-retry-catalog">Intentar de nuevo</button>
-     </div>
-   </div>
-   ```
-2. **En el Checkout:**
-   - Si la petición de orden de compra (`POST /api/orders`) falla, el botón de confirmación se habilitará nuevamente para evitar bloqueos y se renderizará un cartel de error dinámico debajo del formulario usando `createElement` y `textContent` para proteger contra XSS.
+  <!-- Columna Derecha: Caja de Compra Flotante (Sticky) -->
+  <aside class="ml-detail-column-right">
+    <div class="ml-buy-box sticky-top">
+      
+      <!-- Condición e Historial -->
+      <div class="ml-buy-box-header">
+        <span class="ml-condition-text">Nuevo | +100 vendidos</span>
+      </div>
 
-### C. Estados de Éxito
-Cuando la orden se procesa exitosamente en el servidor (respuesta `201 Created` con el ID de la orden):
-1. Se limpia el estado local del carrito en el cliente.
-2. El formulario se reinicia.
-3. Se inyecta una pantalla de éxito interactiva sobre la barra lateral del carrito o a través de un Modal dedicado:
-   ```html
-   <div class="text-center py-5" id="checkout-success-view">
-     <div class="success-icon mb-3 text-success" style="font-size: 3rem;">✓</div>
-     <h3 class="h4 text-main mb-2">¡Compra Confirmada!</h3>
-     <p class="text-muted small">Tu orden ha sido registrada con éxito en nuestro sistema.</p>
-     <div class="bg-dark p-3 rounded mb-4">
-       <span class="text-muted d-block small">ID de la Orden:</span>
-       <code class="text-success" id="success-order-id">{orderId}</code>
-     </div>
-     <button class="btn btn-outline-success btn-sm" id="btn-continue-shopping">Seguir Comprando</button>
-   </div>
-   ```
+      <!-- Título de Producto -->
+      <h1 class="ml-buy-box-title">{name}</h1>
+
+      <!-- Sistema de Valoración (Estrellas) -->
+      <div class="ml-rating-stars">
+        <span class="ml-stars">★★★★★</span>
+        <span class="ml-rating-count">(48 opiniones)</span>
+      </div>
+
+      <!-- Precio Principal Destacado -->
+      <div class="ml-buy-box-price">
+        <span class="ml-price-value">${price}</span>
+        <span class="ml-installments-info">en 12x sin interés de ${(price/12)}</span>
+      </div>
+
+      <!-- Envío Destacado -->
+      <div class="ml-shipping-box">
+        <span class="ml-shipping-icon">🚚</span>
+        <div class="ml-shipping-details">
+          <span class="ml-shipping-headline">Envío gratis a todo el país</span>
+          <span class="ml-shipping-eta">Llega mañana gratis</span>
+        </div>
+      </div>
+
+      <!-- Stock Disponible -->
+      <div class="ml-stock-status">
+        <span class="ml-stock-headline">Stock disponible</span>
+        <span class="ml-stock-qty">(Disponibles: {stock} unidades)</span>
+      </div>
+
+      <!-- Selector de Cantidad -->
+      <div class="ml-qty-picker">
+        <label for="detail-qty-select">Cantidad:</label>
+        <select id="detail-qty-select" class="form-select ml-select-qty">
+          <option value="1" selected>1 unidad</option>
+          <option value="2">2 unidades</option>
+          <option value="3">3 unidades</option>
+          <option value="4">4 unidades</option>
+        </select>
+      </div>
+
+      <!-- Botones de Acción Masiva -->
+      <div class="ml-actions-panel">
+        <button class="ml-btn-primary-action btn-buy-now" data-id="{id}">
+          Comprar ahora
+        </button>
+        <button class="ml-btn-secondary-action btn-add-cart" data-id="{id}">
+          Agregar al carrito
+        </button>
+      </div>
+
+    </div>
+  </aside>
+
+</div>
+```
+
+---
+
+## 5. Flujo de Carrito y Checkout Limpio
+
+Un diseño de dos bloques optimizado para evitar distracciones en el cierre de la orden de compra.
+
+### Estructura de Carrito y Resumen de Totales
+
+```html
+<div class="ml-cart-layout">
+  
+  <!-- Bloque Principal Izquierdo: Lista de Productos en Carrito -->
+  <main class="ml-cart-items-panel">
+    <h2 class="ml-cart-headline">Productos en tu carrito</h2>
+    
+    <div class="ml-cart-list" id="cart-items-container" role="list">
+      <!-- Item de Carrito Individual (Generado dinámicamente) -->
+      <div class="ml-cart-item" data-id="{id}" role="listitem">
+        <img src="{imageUrl}" alt="{name}" class="ml-cart-item-thumb">
+        
+        <div class="ml-cart-item-details">
+          <h3 class="ml-cart-item-title">{name}</h3>
+          <div class="ml-cart-item-actions">
+            <!-- Botón de Eliminar -->
+            <button class="ml-btn-text-action btn-cart-action" data-action="delete" data-id="{id}">Eliminar</button>
+            <span class="ml-divider">|</span>
+            <a href="#" class="ml-text-link">Guardar para después</a>
+          </div>
+        </div>
+
+        <!-- Controles de Cantidad Accesibles -->
+        <div class="ml-cart-qty-controls">
+          <button class="ml-qty-btn btn-cart-action" data-action="minus" data-id="{id}" aria-label="Disminuir">-</button>
+          <span class="ml-qty-value">{quantity}</span>
+          <button class="ml-qty-btn btn-cart-action" data-action="plus" data-id="{id}" aria-label="Aumentar">+</button>
+        </div>
+
+        <!-- Precio por Producto -->
+        <div class="ml-cart-item-price">
+          <span class="ml-item-price-val">${price * quantity}</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bloque de Resumen de Compra Derecho -->
+  <aside class="ml-cart-summary-panel">
+    <div class="ml-summary-card">
+      <h3 class="ml-summary-title">Resumen de compra</h3>
+      
+      <div class="ml-summary-row">
+        <span>Subtotal ({totalItems} productos)</span>
+        <span id="cart-subtotal">$0</span>
+      </div>
+      <div class="ml-summary-row">
+        <span>Envío</span>
+        <span class="ml-free-shipping-text">Gratis</span>
+      </div>
+      
+      <div class="ml-summary-divider"></div>
+      
+      <div class="ml-summary-row ml-row-total">
+        <span>Total</span>
+        <span id="cart-total">$0</span>
+      </div>
+
+      <!-- Formulario de Checkout (Datos de Envío y Pago) -->
+      <form id="checkout-form" class="ml-checkout-form needs-validation" novalidate>
+        <div class="ml-form-group">
+          <label for="checkout-name">Nombre de quien recibe</label>
+          <input type="text" id="checkout-name" required placeholder="Ej. Sebastian Dev">
+        </div>
+
+        <div class="ml-form-group">
+          <label for="checkout-email">Correo de contacto</label>
+          <input type="email" id="checkout-email" required placeholder="Ej. correo@ejemplo.com">
+        </div>
+
+        <div class="ml-form-group">
+          <label for="checkout-phone">Teléfono de contacto</label>
+          <input type="tel" id="checkout-phone" required placeholder="Ej. +56912345678">
+        </div>
+
+        <div class="ml-form-group">
+          <label for="checkout-payment">Método de pago</label>
+          <select id="checkout-payment" required>
+            <option value="" disabled selected>Selecciona tu medio...</option>
+            <option value="tarjeta">Tarjeta de Crédito / Débito (Webpay)</option>
+            <option value="transferencia">Transferencia Electrónica</option>
+          </select>
+        </div>
+
+        <button type="submit" class="ml-btn-checkout-submit" id="btn-submit-checkout" disabled>
+          Confirmar Compra
+        </button>
+      </form>
+    </div>
+  </aside>
+
+</div>
+```
+
+---
+
+## 6. Estilos CSS Requeridos (Clases e Implementación)
+
+Aplica estas clases en `frontend/css/index.css` para sobreescribir el modo oscuro previo y unificar la visual a Mercado Libre.
+
+```css
+/* Variables del Sistema de Diseño */
+:root {
+  --ml-yellow: #FFF159;
+  --ml-bg: #EFEFEF;
+  --ml-white: #FFFFFF;
+  --ml-blue: #3483FA;
+  --ml-light-blue: #E3EDFB;
+  --ml-green: #00A650;
+  --ml-dark: #333333;
+  --ml-gray: #666666;
+  --ml-border: #E6E6E6;
+  --ml-font: 'Inter', -apple-system, sans-serif;
+}
+
+/* Ajustes Base */
+body {
+  background-color: var(--ml-bg);
+  color: var(--ml-dark);
+  font-family: var(--ml-font);
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+.ml-header {
+  background-color: var(--ml-yellow);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--ml-border);
+}
+.ml-header-row-top, .ml-header-row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.ml-header-row-bottom {
+  margin-bottom: 0;
+}
+.ml-search-bar {
+  display: flex;
+  background-color: var(--ml-white);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
+  width: 50%;
+  overflow: hidden;
+}
+.ml-search-bar input {
+  border: none;
+  padding: 10px 15px;
+  width: 100%;
+  font-size: 0.875rem;
+  outline: none;
+}
+.ml-search-btn {
+  background: none;
+  border: none;
+  padding: 0 15px;
+  cursor: pointer;
+}
+
+/* Tarjetas de Producto */
+.ml-product-card {
+  background-color: var(--ml-white);
+  border-radius: 4px;
+  border: 1px solid var(--ml-border);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+.ml-product-card:hover {
+  box-shadow: 0 7px 15px 0 rgba(0,0,0,0.1);
+}
+.ml-card-img-container {
+  aspect-ratio: 1 / 1;
+  background-color: var(--ml-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  border-bottom: 1px solid var(--ml-border);
+}
+.ml-card-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.ml-card-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.ml-free-shipping-text {
+  color: var(--ml-green);
+  font-weight: bold;
+  font-size: 0.8125rem;
+}
+.ml-product-price {
+  font-size: 1.5rem;
+  color: var(--ml-dark);
+  font-weight: 300;
+  display: block;
+}
+.ml-product-installments {
+  font-size: 0.75rem;
+  color: var(--ml-green);
+  display: block;
+  margin-bottom: 8px;
+}
+.ml-product-title {
+  font-size: 0.875rem;
+  color: var(--ml-gray);
+  line-height: 1.3;
+  height: 2.6rem;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+/* Caja de Compra (Sticky Buy Box) */
+.ml-buy-box {
+  background-color: var(--ml-white);
+  border: 1px solid var(--ml-border);
+  border-radius: 8px;
+  padding: 24px;
+}
+.ml-btn-primary-action {
+  background-color: var(--ml-blue);
+  color: var(--ml-white);
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.ml-btn-primary-action:hover {
+  background-color: #2968c8;
+}
+.ml-btn-secondary-action {
+  background-color: var(--ml-light-blue);
+  color: var(--ml-blue);
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+.ml-btn-secondary-action:hover {
+  background-color: #d2e3f9;
+}
+```

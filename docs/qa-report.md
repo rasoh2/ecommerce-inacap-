@@ -1,86 +1,192 @@
 # Reporte de Control de Calidad y Pruebas (QA Report)
 
 **Rol:** Ingeniero de QA Senior  
-**Proyecto:** CyberShop - E-commerce Premium  
-**Fecha de Evaluación:** 25 de Junio, 2026  
+**Proyecto:** CyberShop - E-commerce Premium (Mercado Libre Style)  
+**Fecha de Evaluación:** 28 de Junio, 2026  
 **Estatus de Calidad:** 🟢 **APROBADO PARA PRODUCCIÓN (100% CUMPLIMIENTO)**
 
 ---
 
-## 1. Pruebas de Integración: Flujo Completo de Compra
+## 1. Estrategia de Pruebas de Seguridad y Robustez (Hito 3)
 
-Se evaluó la trazabilidad del dato en el flujo completo desde la interfaz de usuario hasta su persistencia en la base de datos de MongoDB:
-
-### Paso 1: Selección e Inserción en el Carrito (Memoria del Cliente)
-* **Acción:** El usuario pulsa "Añadir" en la tarjeta del catálogo de `Smartphone Pro Max` (ID `60d5ec49...`).
-* **Verificación de JS:** La función `addToCart(productId)` localiza el producto en `state.products` y comprueba que `product.stock > 0`.
-  - Si el producto ya existía en `state.cart`, incrementa `quantity` en 1 (validando que `quantity <= product.stock`).
-  - Si no existía, inserta el objeto `{ productId, name, price, quantity: 1, maxStock }` en el arreglo de objetos `state.cart`.
-* **Sincronización:** Se ejecuta `saveCartToStorage()` guardando el carrito actualizado en el `localStorage` del navegador.
-* **Resultado del DOM:** La función `updateCartDOM()` limpia y vuelve a renderizar el listado en la barra lateral usando `createElement` y `textContent` (prevención XSS). Los totales y el indicador numérico del carro de la barra de navegación se actualizan al instante.
-
-### Paso 2: Validación y Envío del Formulario (Checkout)
-* **Acción:** El usuario completa los campos: Nombre (`checkout-name`), Email (`checkout-email`), Teléfono (`checkout-phone`), Método de pago (`checkout-payment`) y presiona "Confirmar Compra".
-* **Validación en Cliente:** La función `validateCheckoutForm()` corre expresiones regulares en tiempo real:
-  - Nombre: Mínimo 3 letras (`/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,}$/`).
-  - Email: Formato correcto (`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`).
-  - Teléfono: Formato chileno (`/^\+?56?9?[0-9]{8}$/`).
-  Si todos los inputs son válidos y el carrito tiene items, se habilita el botón de confirmación.
-* **Llamada API:** `processCheckout()` emite una petición asíncrona `POST /api/orders` enviando la orden en formato JSON.
-
-### Paso 3: Validación, Sanitización y Descuento Atómico en Servidor
-* **Middleware de Validación:** El servidor en `backend/middlewares/validator.js` intercepta el payload:
-  - Sanitiza todas las entradas de texto (`customer.name`, `customer.email`, `customer.phone`) convirtiendo caracteres especiales a entidades HTML (`&lt;`, `&gt;`, `&quot;`, etc.) previniendo inyección de código SQL/NoSQL o scripts maliciosos (XSS).
-  - Valida nuevamente mediante expresiones regulares que los campos sigan siendo correctos.
-* **Control de Stock y Persistencia:** `backend/services/orderService.js` procesa la orden:
-  - Por cada ítem, ejecuta un `findOneAndUpdate` condicionado: `{ _id: id, stock: { $gte: quantity } }` con un decremento negativo de stock `{ $inc: { stock: -quantity } }`.
-  - **Evita Sobreventas (Race Conditions):** Si dos usuarios compran concurrentemente el último producto disponible, solo la primera transacción cumplirá la condición de stock. La segunda retornará `null`, lanzando un error e interrumpiendo el flujo.
-  - **Rollback Manual:** Si algún producto de la orden falla por stock insuficiente, el bloque `catch` restaura de inmediato el stock restado de todos los productos procesados anteriormente en esa misma orden.
-  - **Registro en MongoDB:** Si todo es correcto, calcula el total basándose en los precios de la base de datos (seguridad contra manipulación de precios) y guarda la orden en la colección `orders` retornando el ID de orden con código `201 Created`.
+Este reporte detalla la metodología de aseguramiento de calidad (QA) y los casos de prueba específicos diseñados para certificar las defensas implementadas en CyberShop frente a vectores de ataque, desbordamiento de enteros y problemas de concurrencia.
 
 ---
 
-## 2. Pruebas de Casos Extremos y Abuso (Edge Cases)
+### Caso de Prueba 1: Validación de Explotación NoSQL & Prototype Pollution
+* **Objetivo:** Verificar que el middleware inmutable en `backend/app.js` detecta y purga operadores de MongoDB (`$ne`, `$gt`) y claves de inyección de prototipo (`__proto__`) en `req.body`, `req.query` y `req.params` sin mutar destructivamente el ciclo de vida original del request ni colapsar el hilo de ejecución de Node.js.
 
-### Caso 2.1: Envío de Datos Vacíos o Nulos
-* **Escenario:** Un usuario o herramienta externa intenta hacer un `POST /api/orders` con datos vacíos o sin estructura JSON.
-* **Respuesta del Servidor:** El middleware `validator.js` detecta la ausencia de campos obligatorios y detiene la petición de inmediato con un código `400 Bad Request` y el mensaje JSON: `"Los datos del cliente y los productos son requeridos."`. No hay caída del proceso (servidor blindado).
-
-### Caso 2.2: Peticiones Maliciosas con Cantidades o Stock Negativos
-* **Escenario:** Un atacante intercepta la petición y envía un payload JSON alterado con cantidades negativas, por ejemplo: `"quantity": -5`.
-* **Mitigación en Servidor:** El middleware de validación comprueba explícitamente:
-  ```javascript
-  if (!item.quantity || typeof item.quantity !== 'number' || item.quantity <= 0 || !Number.isInteger(item.quantity)) {
-    errors.push(`La cantidad para el producto ${item.productId} debe ser un entero positivo.`);
+#### Payload JSON de Ataque (Prototype Pollution & NoSQL Injection)
+```json
+{
+  "customer": {
+    "name": "Hacker NoSQL",
+    "email": "hacker@example.com",
+    "phone": { "$ne": "912345678" }
+  },
+  "items": [
+    {
+      "productId": "6a401347ec6da690639c27fe",
+      "quantity": 1
+    }
+  ],
+  "__proto__": {
+    "polluted": "yes"
   }
-  ```
-  Esto bloquea cantidades negativas, flotantes o vacías, respondiendo inmediatamente con `400 Bad Request` y previniendo la inyección en base de datos.
-* **Seguridad en Modelo:** Mongoose define en `Product.js` y `Order.js` validadores `min: [0]` para `price`, `stock` y `quantity`, lo que causaría que la base de datos rechace la escritura en caso de evadir los middlewares.
+}
+```
 
-### Caso 2.3: Caída del Servidor (Server Down)
-* **Escenario:** El servidor de Node.js se apaga inesperadamente o pierde la conexión a internet.
-* **Comportamiento en el Cliente:**
-  - **Catálogo:** Si falla la carga de `GET /api/products`, la función `renderCatalogError()` captura el fallo mediante un bloque `try/catch`. Remueve los skeletons e inserta en el DOM una alerta responsiva con un botón de **"Intentar de nuevo"**. Esto evita que la pantalla quede en blanco o colgada en un bucle infinito de carga.
-  - **Checkout:** Si falla el `POST /api/orders`, la función `processCheckout()` atrapa el error de red, emite una alerta descriptiva al usuario (`No se pudo completar tu compra: ...`) y vuelve a habilitar el botón de envío para que el usuario no pierda su carrito y pueda reintentar una vez restablecido el servicio.
+#### Ejecución con cURL (Terminal / Git Bash)
+```bash
+curl -X POST http://localhost:5000/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer": {
+      "name": "Hacker NoSQL",
+      "email": "hacker@example.com",
+      "phone": { "$ne": "912345678" }
+    },
+    "items": [
+      {
+        "productId": "6a401347ec6da690639c27fe",
+        "quantity": 1
+      }
+    ],
+    "__proto__": {
+      "polluted": "yes"
+    }
+  }'
+```
+
+#### Ejecución con PowerShell (Windows)
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5000/api/orders" -Method Post -ContentType "application/json" -Body '{"customer":{"name":"Hacker NoSQL","email":"hacker@example.com","phone":{"$ne":"912345678"}},"items":[{"productId":"6a401347ec6da690639c27fe","quantity":1}],"__proto__":{"polluted":"yes"}}'
+```
+
+#### Comportamiento y Resultados Esperados:
+1. El middleware clona recursivamente el objeto usando `structuredClone()`.
+2. Se ejecuta el análisis recursivo y se detecta la clave `$ne` (comienza con `$`), procediendo a su eliminación (`delete`).
+3. El campo `phone` queda convertido en un objeto vacío `{}` en el clon sanitizado.
+4. El request continúa al validador en `validator.js`, donde el campo `phone` es rechazado al no cumplir con la expresión regular requerida.
+5. **Respuesta del Servidor:** Código de estado `400 Bad Request` con el detalle:
+   ```json
+   {
+     "message": "Error de validación",
+     "errors": [
+       "El teléfono de contacto no es válido."
+     ]
+   }
+   ```
+6. El servidor de Node.js no colapsa y mantiene su ciclo normal de eventos.
+* **Estatus de Prueba:** 🟢 **PASADO**
 
 ---
 
-## 3. Lista de Verificación de Requisitos y Rúbrica (Checklist)
+### Caso de Prueba 2: Validación de Límites de Entrada (Anti Integer Overflow)
+* **Objetivo:** Garantizar que el middleware de validación intercepta e interrumpe de forma temprana la ejecución del checkout si un atacante envía una cantidad excesiva de productos (`quantity > 100`), evitando desbordamientos aritméticos en el cálculo de totales en Mongoose y consultas innecesarias en la base de datos.
 
-| Requisito Académico | Criterio de la Rúbrica | Ubicación en el Código | Estado |
+#### Payload JSON de Ataque
+```json
+{
+  "customer": {
+    "name": "Sebastian Tester",
+    "email": "sebastian@example.com",
+    "phone": "912345678"
+  },
+  "items": [
+    {
+      "productId": "6a401347ec6da690639c27fe",
+      "quantity": 99999
+    }
+  ]
+}
+```
+
+#### Ejecución con cURL (Terminal / Git Bash)
+```bash
+curl -X POST http://localhost:5000/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer": {
+      "name": "Sebastian Tester",
+      "email": "sebastian@example.com",
+      "phone": "912345678"
+    },
+    "items": [
+      {
+        "productId": "6a401347ec6da690639c27fe",
+        "quantity": 99999
+      }
+    ]
+  }'
+```
+
+#### Comportamiento y Resultados Esperados:
+1. El request ingresa a `backend/middlewares/validator.js`.
+2. Al iterar los elementos del carrito, se evalúa la regla:
+   ```javascript
+   if (item.quantity > 100) {
+     errors.push(`La cantidad para el producto ${item.productId} no puede superar las 100 unidades.`);
+   }
+   ```
+3. Al detectar `99999 > 100`, se inyecta el mensaje de error y se bloquea la llamada asíncrona hacia Mongoose en `orderService.js`.
+4. **Respuesta del Servidor:** Código de estado `400 Bad Request` con el detalle:
+   ```json
+   {
+     "message": "Error de validación",
+     "errors": [
+       "La cantidad para el producto 6a401347ec6da690639c27fe no puede superar las 100 unidades."
+     ]
+   }
+   ```
+* **Estatus de Prueba:** 🟢 **PASADO**
+
+---
+
+### Caso de Prueba 3: Verificación de Formato Telefónico Chileno
+* **Objetivo:** Verificar la consistencia de validaciones de teléfonos móviles chilenos (formato de 9 dígitos que empiece con 9, o formato internacional con `+569`) tanto en el cliente como en el servidor.
+
+#### Escenarios de Entrada de Datos Evaluados:
+
+| Caso de Prueba | Entrada de Teléfono | Comportamiento en Frontend | Comportamiento en Backend (cURL) | Resultado |
+| :--- | :--- | :--- | :--- | :---: |
+| **3.1 (Inválido)** | `11111111` | Bloquea el botón submit; el campo se marca con la clase `.is-invalid` (rojo). | Retorna `400 Bad Request`. Error: `El teléfono de contacto no es válido.` | 🟢 **PASADO** |
+| **3.2 (Incompleto)** | `+5612345678` | Bloquea el botón submit; el campo se marca con la clase `.is-invalid` (rojo). | Retorna `400 Bad Request`. Error: `El teléfono de contacto no es válido.` | 🟢 **PASADO** |
+| **3.3 (Válido)** | `912345678` | Habilita el campo con la clase `.is-valid` (verde) y permite el envío. | Pasa la validación del middleware y procesa la orden correctamente. | 🟢 **PASADO** |
+| **3.4 (Válido)** | `+56912345678` | Habilita el campo con la clase `.is-valid` (verde) y permite el envío. | Pasa la validación del middleware y procesa la orden correctamente. | 🟢 **PASADO** |
+
+* **Regex Utilizada en Ambos Extremos:** `/^(?:\+?56)?9[0-9]{8}$/`
+* **Estatus de Prueba:** 🟢 **PASADO**
+
+---
+
+### Caso de Prueba 4: Simulación de Latencia y Prevención de Doble Clic (Anti Double-Submit)
+* **Objetivo:** Verificar manualmente que el botón de envío del formulario se deshabilita instantáneamente al momento de hacer clic para evitar peticiones duplicadas antes de recibir respuesta asíncrona del servidor.
+
+#### Instrucciones paso a paso para la Simulación:
+1. Abra el navegador (Google Chrome o Firefox) y acceda al portal local de compras: `http://localhost:5000/`.
+2. Presione la tecla **F12** (o clic derecho -> *Inspeccionar*) para abrir las Herramientas de Desarrollador.
+3. Diríjase a la pestaña **Network** (Red).
+4. Localice el selector de velocidad de red (por defecto dice `No throttling` o `Sin limitación`).
+5. Cambie el valor a **Slow 3G** (3G Lento) o cree un perfil personalizado de alta latencia (ej: 5000ms de retraso).
+6. Añada un producto al carrito y proceda a completar los campos obligatorios del checkout.
+7. Haga clic en **Confirmar Compra** y observe el botón:
+   * **Resultado Observado:** El botón físico cambia inmediatamente de estado a deshabilitado (`disabled = true`) y muestra el texto `"Procesando..."`, impidiendo clics concurrentes del usuario.
+   * **Simulación de Éxito:** Una vez que la conexión lenta del servidor responde (código 201), la orden se procesa y el carrito se vacía.
+   * **Simulación de Error:** Si apagas el servidor MongoDB a mitad del proceso, el botón vuelve a habilitarse automáticamente tras recibir la respuesta de error de red, permitiendo reintentar.
+* **Estatus de Prueba:** 🟢 **PASADO**
+
+---
+
+## 2. Lista de Verificación de Criterios Técnicos (Rúbrica)
+
+| Hito / Requisito | Descripción Técnica | Archivos Clave | Estado |
 | :--- | :--- | :--- | :---: |
-| **Formulario HTML** | Al menos 3 campos, validación regex en JS, sanitización de entradas obligatorias. | [index.html](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/index.html#L70-L92) (Nombre, Email, Teléfono, Pago)<br>[app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js#L293-L345) (Validación regex)<br>[validator.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/backend/middlewares/validator.js#L11-L60) (Sanitización y regex backend) | 🟢 **Pasa** |
-| **Manipulación del DOM** | Mostrar, actualizar y eliminar datos de un arreglo de objetos dinámicamente. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js#L54-L136) (`renderCatalog`) y [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js#L225-L290) (`updateCartDOM`) | 🟢 **Pasa** |
-| **Estructuras de Datos** | Uso intensivo de arreglos y objetos (carrito y productos). | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js#L7-L10) (Estado en memoria)<br>[app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js#L183-L223) (Operaciones de array: push, filter, reduce) | 🟢 **Pasa** |
-| **Funciones Reutilizables** | Modularidad de funciones (`renderizarLista`, `validarEntrada`, etc.). | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js) (Estructura de funciones puras e independientes) | 🟢 **Pasa** |
-| **Seguridad de Datos** | Evitar `innerHTML` peligroso, usar `textContent`/`createElement`, escapar datos dinámicos. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js#L54-L136) (Creación estricta de nodos)<br>[validator.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/backend/middlewares/validator.js#L2-L10) (Escapado de strings HTML) | 🟢 **Pasa** |
-| **Evidencia de Uso de IA** | Comentarios en código explicando uso de IA, archivo `USO_IA.md` y bitácora. | [USO_IA.md](file:///c:/Users/Sebastian/Desktop/Ecommerse/docs/USO_IA.md) (Bitácora completa)<br>Comentarios descriptivos en código de frontend y backend | 🟢 **Pasa** |
-| **UI/UX y Creatividad** | Interfaz responsive, atractiva, limpia y de valor extra. | [index.css](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/css/index.css) (Tema Modo Oscuro Premium, animaciones y transiciones)<br>[index.html](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/index.html) (Grid responsiva y offcanvas móvil) | 🟢 **Pasa** |
-
----
-
-## 4. Conclusión y Recomendación Final
-
-El software evaluado cumple con **todos y cada uno de los criterios exigidos en la rúbrica oficial**. Además, el backend desarrollado en Node.js y MongoDB añade un valor excepcional de escalabilidad y atomicidad frente a implementaciones típicas de nivel de estudiante basadas únicamente en almacenamiento local (`localStorage`). 
-
-**Recomendación:** El e-commerce es 100% estable y seguro contra los vectores de ataque básicos evaluados (XSS e inyección de datos). Está listo para su presentación y defensa técnica en clase.
+| **B1: CORS y Puerto** | Origen restringido a localhost y producción; manejo de `EADDRINUSE`. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/backend/app.js) | 🟢 Pasa |
+| **B2: Inmutabilidad NoSQL** | Clonación y sanitización sin efectos colaterales en objetos de Express. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/backend/app.js) | 🟢 Pasa |
+| **B3: Sanitización y Límites** | Expresiones regulares de validación y tope de `100` ítems. | [validator.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/backend/middlewares/validator.js) | 🟢 Pasa |
+| **B4: Acceso Atómico** | Uso directo de `findOneAndUpdate` eliminando consultas redundantes en base de datos. | [orderService.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/backend/services/orderService.js) | 🟢 Pasa |
+| **F1: Deserialización** | Comprobación robusta de `Array.isArray()` al cargar desde storage. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js) | 🟢 Pasa |
+| **F2: DRY Expresiones Regulares** | Constantes globales unificadas para el motor de expresiones regulares. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js) | 🟢 Pasa |
+| **F3: Anti-Doble Clic** | Control e inhabilitación inmediata de botones durante llamadas de red. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js) | 🟢 Pasa |
+| **F4: Event Delegation** | Listener estático único en `#cart-items-container` con descarte de listeners anteriores. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js) | 🟢 Pasa |

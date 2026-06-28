@@ -364,7 +364,7 @@ function updateCartDOM() {
 
     // Botón menos
     const btnMinus = document.createElement('button');
-    btnMinus.className = 'btn btn-xs btn-outline-secondary quantity-btn btn-cart-action';
+    btnMinus.className = 'btn btn-xs btn-outline-secondary quantity-btn cart-btn-action';
     btnMinus.textContent = '-';
     btnMinus.type = 'button';
     btnMinus.dataset.action = 'minus';
@@ -377,7 +377,7 @@ function updateCartDOM() {
 
     // Botón más
     const btnPlus = document.createElement('button');
-    btnPlus.className = 'btn btn-xs btn-outline-secondary quantity-btn btn-cart-action';
+    btnPlus.className = 'btn btn-xs btn-outline-secondary quantity-btn cart-btn-action';
     btnPlus.textContent = '+';
     btnPlus.type = 'button';
     btnPlus.dataset.action = 'plus';
@@ -385,7 +385,7 @@ function updateCartDOM() {
 
     // Botón eliminar
     const btnDelete = document.createElement('button');
-    btnDelete.className = 'btn btn-xs btn-outline-danger ms-2 btn-cart-action';
+    btnDelete.className = 'btn btn-xs btn-outline-danger ms-2 cart-btn-action';
     btnDelete.textContent = '🗑️';
     btnDelete.type = 'button';
     btnDelete.dataset.action = 'delete';
@@ -661,7 +661,7 @@ function bindCartItemsListener() {
 }
 
 function handleCartClick(e) {
-  const button = e.target.closest('.btn-cart-action');
+  const button = e.target.closest('.cart-btn-action');
   if (!button) return;
 
   const id = button.dataset.id;

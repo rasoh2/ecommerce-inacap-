@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear tu cuenta - CyberShop</title>
+  <!-- Google Fonts & Bootstrap 5 CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/index.css">
+  <style>
+    body {
+      background-color: #EEEEEE;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 0;
+    }
+    .register-container {
+      width: 100%;
+      max-width: 420px;
+    }
+    .register-card {
+      background-color: #ffffff;
+      border: 1px solid #E6E6E6;
+      border-radius: 6px;
+      padding: 32px 24px;
+      box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1);
+    }
+    .register-brand {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: #2d3277;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .register-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #333333;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #333333;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="register-container">
+    <!-- Brand Logo -->
+    <a href="index.html" class="register-brand">CyberShop</a>
+
+    <!-- Register Card -->
+    <div class="register-card">
+      <h1 class="register-title">Completa tus datos para crear tu cuenta</h1>
+
+      <!-- Alerta dinámica de error (Oculta por defecto) -->
+      <div class="alert alert-danger d-none" id="alert-error" role="alert">
+        Hubo un error al crear la cuenta.
+      </div>
+
+      <form id="register-form" class="needs-validation" novalidate>
+        <!-- Nombre completo -->
+        <div class="mb-3">
+          <label for="register-name" class="form-label">Nombre Completo</label>
+          <input type="text" class="form-control" id="register-name" required placeholder="Juan Pérez" minlength="3">
+          <div class="invalid-feedback">El nombre debe tener al menos 3 caracteres y solo letras.</div>
+        </div>
+
+        <!-- Correo electrónico -->
+        <div class="mb-3">
+          <label for="register-email" class="form-label">Correo Electrónico</label>
+          <input type="email" class="form-control" id="register-email" required placeholder="correo@ejemplo.com">
+          <div class="invalid-feedback">Por favor introduce un correo electrónico válido.</div>
+        </div>
+
+        <!-- Teléfono móvil -->
+        <div class="mb-3">
+          <label for="register-phone" class="form-label">Teléfono Móvil (Chile)</label>
+          <input type="tel" class="form-control" id="register-phone" required placeholder="+56912345678">
+          <div class="invalid-feedback">Formato de teléfono no válido (+569XXXXXXXX o 9XXXXXXXX).</div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="mb-4">
+          <label for="register-password" class="form-label">Elige una Contraseña</label>
+          <input type="password" class="form-control" id="register-password" required placeholder="Mínimo 6 caracteres" minlength="6">
+          <div class="invalid-feedback">La contraseña debe tener al menos 6 caracteres.</div>
+        </div>
+
+        <!-- Botón submit -->
+        <button type="submit" class="btn btn-primary w-100 py-2.5 fs-6" id="btn-submit-register">
+          Crear cuenta
+        </button>
+      </form>
+
+      <!-- Enlace para volver/ingresar -->
+      <div class="text-center mt-4 pt-3 border-top" style="border-color: #E6E6E6 !important;">
+        <span class="text-muted small">¿Ya tienes una cuenta?</span>
+        <a href="#" class="text-decoration-none small fw-medium" style="color: #3483FA;">Ingresar</a>
+      </div>
+    </div>
+
+    <!-- Volver al catálogo -->
+    <div class="text-center mt-3">
+      <a href="index.html" class="text-decoration-none small text-muted">← Volver al catálogo</a>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/register.js" type="module"></script>
+</body>
+</html>

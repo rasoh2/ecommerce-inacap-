@@ -519,3 +519,65 @@ body {
   background-color: #d2e3f9;
 }
 ```
+
+---
+
+## 7. Formulario de Registro de Alta Conversión
+
+Este flujo describe la estructura visual y lógica del formulario de registro de nuevos clientes (`register.html`), alineado con el diseño limpio y directo de Mercado Libre.
+
+### A. Estructura HTML Semántica y Clases Bootstrap
+
+El formulario utiliza un contenedor centralizado, inputs con estilos limpios y una alerta oculta para visualización de errores dinámicos sin recargar la página.
+
+```html
+<div class="register-container">
+  <a href="index.html" class="register-brand">CyberShop</a>
+
+  <div class="register-card">
+    <h1 class="register-title">Completa tus datos para crear tu cuenta</h1>
+
+    <!-- Contenedor de Alerta Dinámica (Oculto por defecto mediante .d-none) -->
+    <div class="alert alert-danger d-none" id="alert-error" role="alert">
+      <!-- Mensaje de error inyectado dinámicamente -->
+    </div>
+
+    <form id="register-form" class="needs-validation" novalidate>
+      <div class="mb-3">
+        <label for="register-name" class="form-label">Nombre Completo</label>
+        <input type="text" class="form-control" id="register-name" required placeholder="Juan Pérez">
+        <div class="invalid-feedback">El nombre debe tener al menos 3 caracteres y solo letras.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="register-email" class="form-label">Correo Electrónico</label>
+        <input type="email" class="form-control" id="register-email" required placeholder="correo@ejemplo.com">
+        <div class="invalid-feedback">Por favor introduce un correo electrónico válido.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="register-phone" class="form-label">Teléfono Móvil (Chile)</label>
+        <input type="tel" class="form-control" id="register-phone" required placeholder="+56912345678">
+        <div class="invalid-feedback">Formato de teléfono no válido.</div>
+      </div>
+
+      <div class="mb-4">
+        <label for="register-password" class="form-label">Elige una Contraseña</label>
+        <input type="password" class="form-control" id="register-password" required placeholder="Mínimo 6 caracteres">
+        <div class="invalid-feedback">La contraseña debe tener al menos 6 caracteres.</div>
+      </div>
+
+      <!-- Botón de alta visibilidad y ancho completo -->
+      <button type="submit" class="btn btn-primary w-100 py-2.5" id="btn-submit-register">
+        Crear cuenta
+      </button>
+    </form>
+  </div>
+</div>
+```
+
+### B. Comportamiento y UX Spec
+1. **Validación en Tiempo Real (Input/Blur):** Los campos son evaluados usando expresiones regulares. Si un campo no es válido, se le añade la clase `.is-invalid` de Bootstrap para desplegar el feedback visual inmediato.
+2. **Prevención de Doble Clic:** Al gatillarse el evento `submit`, el botón `#btn-submit-register` se deshabilita instantáneamente (`disabled = true`) y cambia su texto a `"Procesando..."` para evitar peticiones Ajax duplicadas concurrentes.
+3. **Manejo Dinámico de Errores (Sin recarga):** Si el servidor retorna un error (como `400 Bad Request` por correo duplicado), se remueve la clase `.d-none` del contenedor `#alert-error`, mostrando dinámicamente el mensaje de error provisto por el backend.
+

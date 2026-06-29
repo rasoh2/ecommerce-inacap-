@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import errorHandler from './middlewares/errorHandler.js';
 
 // Cargar variables de entorno
@@ -86,6 +87,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 // Rutas de la API
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/users', userRoutes);
 
 // Servir el index.html en cualquier ruta que no sea de la API (para SPA/Soporte rutas estáticas)
 app.get('*', (req, res) => {

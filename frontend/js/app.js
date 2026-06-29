@@ -2,7 +2,7 @@
   CyberShop - Frontend Core Application
   Desarrollado por Nova (Frontend Engineer) y Milo (Visual Director) - ai-team-dev
   Refactorizado para diseño de alta conversión de Mercado Libre y Vanilla JS puro.
-  Asistido por IA para expresiones regulares, sanitización, buscador y optimización DOM.
+  Asistido por IA para expresiones regulares, sanitización, buscador, registro y optimización DOM.
 */
 
 // Estado global en memoria del cliente
@@ -24,13 +24,30 @@ let productModal = null;
 
 // Inicialización de la aplicación
 document.addEventListener('DOMContentLoaded', () => {
-  productModal = new bootstrap.Modal(document.getElementById('productDetailModal'));
+  const modalEl = document.getElementById('productDetailModal');
+  if (modalEl) {
+    productModal = new bootstrap.Modal(modalEl);
+  }
   
   loadCartFromStorage();
   loadComunaFromStorage();
-  fetchProducts();
+  
+  // Solo cargar catálogo si el contenedor de productos existe en la página
+  if (document.getElementById('products-container')) {
+    fetchProducts();
+  }
+  
   setupEventListeners();
-  setupFormValidation();
+  
+  // Validaciones del formulario de checkout (si existe)
+  if (document.getElementById('checkout-form')) {
+    setupFormValidation();
+  }
+
+  // Validaciones del formulario de registro (si existe)
+  if (document.getElementById('register-form')) {
+    setupRegisterFormValidation();
+  }
 });
 
 // Cargar comuna desde storage para persistencia de ubicación
@@ -68,6 +85,8 @@ async function fetchProducts() {
 // Renderizar Catálogo de Productos (Optimizado con grilla Mercado Libre)
 function renderCatalog() {
   const container = document.getElementById('products-container');
+  if (!container) return;
+  
   container.textContent = ''; // Limpiar skeletons de forma segura
 
   // Filtrar productos según el buscador
@@ -174,6 +193,7 @@ function renderCatalog() {
 // Mostrar error de red con opción de reintentar
 function renderCatalogError() {
   const container = document.getElementById('products-container');
+  if (!container) return;
   container.textContent = ''; // Limpiar skeletons
 
   const col = document.createElement('div');
@@ -340,13 +360,16 @@ function loadCartFromStorage() {
 // Actualizar Vista del Carrito en el DOM (Compatibilidad con tema claro)
 function updateCartDOM() {
   const container = document.getElementById('cart-items-container');
+  if (!container) return;
   container.textContent = ''; // Limpiar de forma segura
 
   const totalBadge = document.getElementById('cart-badge-mobile');
   
   // Calcular cantidad total de ítems
   const totalItemsCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-  totalBadge.textContent = totalItemsCount;
+  if (totalBadge) {
+    totalBadge.textContent = totalItemsCount;
+  }
 
   if (state.cart.length === 0) {
     const emptyMsg = document.createElement('p');
@@ -355,11 +378,14 @@ function updateCartDOM() {
     emptyMsg.textContent = 'El carrito está vacío.';
     container.appendChild(emptyMsg);
 
-    document.getElementById('cart-subtotal').textContent = '$0';
-    document.getElementById('cart-total').textContent = '$0';
+    const subtotalEl = document.getElementById('cart-subtotal');
+    const totalEl = document.getElementById('cart-total');
+    if (subtotalEl) subtotalEl.textContent = '$0';
+    if (totalEl) totalEl.textContent = '$0';
     
     // Deshabilitar submit del formulario si está vacío
-    document.getElementById('btn-submit-checkout').disabled = true;
+    const btnSubmit = document.getElementById('btn-submit-checkout');
+    if (btnSubmit) btnSubmit.disabled = true;
     return;
   }
 
@@ -430,8 +456,10 @@ function updateCartDOM() {
 
   container.appendChild(fragment);
 
-  document.getElementById('cart-subtotal').textContent = `$${subtotal.toLocaleString('es-CL')}`;
-  document.getElementById('cart-total').textContent = `$${subtotal.toLocaleString('es-CL')}`;
+  const subtotalEl = document.getElementById('cart-subtotal');
+  const totalEl = document.getElementById('cart-total');
+  if (subtotalEl) subtotalEl.textContent = `$${subtotal.toLocaleString('es-CL')}`;
+  if (totalEl) totalEl.textContent = `$${subtotal.toLocaleString('es-CL')}`;
   
   // Re-validar formulario para ver si habilitamos el botón de checkout
   validateCheckoutForm();
@@ -448,7 +476,7 @@ function setupFormValidation() {
   const phoneInput = document.getElementById('checkout-phone');
   const paymentSelect = document.getElementById('checkout-payment');
 
-  const inputs = [nameInput, emailInput, phoneInput, paymentSelect];
+  const inputs = [nameInput, emailInput, phoneInput, paymentSelect].filter(Boolean);
 
   inputs.forEach(input => {
     input.addEventListener('input', () => {
@@ -461,12 +489,14 @@ function setupFormValidation() {
     });
   });
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (validateCheckoutForm()) {
-      processCheckout();
-    }
-  });
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (validateCheckoutForm()) {
+        processCheckout();
+      }
+    });
+  }
 }
 
 function validateField(input) {
@@ -504,6 +534,8 @@ function validateCheckoutForm() {
   const paymentSelect = document.getElementById('checkout-payment');
   const btnSubmit = document.getElementById('btn-submit-checkout');
 
+  if (!nameInput || !emailInput || !phoneInput || !paymentSelect || !btnSubmit) return false;
+
   // Solo habilitar si hay elementos en el carrito y todos los campos son válidos
   const cartNotEmpty = state.cart.length > 0;
   const isNameValid = nameInput.value.trim().length >= 3 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nameInput.value);
@@ -523,6 +555,7 @@ function validateCheckoutForm() {
 
 async function processCheckout() {
   const btnSubmit = document.getElementById('btn-submit-checkout');
+  if (!btnSubmit) return;
   
   // Prevención inmediata de doble clic (Tarea F3)
   if (btnSubmit.disabled) return;
@@ -598,22 +631,23 @@ function setupEventListeners() {
 
   // Delegación de eventos en el contenedor de productos (para catálogo dinámico)
   const productsContainer = document.getElementById('products-container');
-  
-  productsContainer.addEventListener('click', (e) => {
-    const target = e.target;
-    
-    // Clic en añadir al carrito
-    if (target.classList.contains('btn-add-cart')) {
-      const id = target.dataset.id;
-      addToCart(id);
-    }
-    
-    // Clic en ver detalle
-    if (target.classList.contains('btn-view-detail')) {
-      const id = target.dataset.id;
-      showProductDetail(id);
-    }
-  });
+  if (productsContainer) {
+    productsContainer.addEventListener('click', (e) => {
+      const target = e.target;
+      
+      // Clic en añadir al carrito
+      if (target.classList.contains('btn-add-cart')) {
+        const id = target.dataset.id;
+        addToCart(id);
+      }
+      
+      // Clic en ver detalle
+      if (target.classList.contains('btn-view-detail')) {
+        const id = target.dataset.id;
+        showProductDetail(id);
+      }
+    });
+  }
 
   // Delegación de eventos en el carrito (Tarea F4)
   bindCartItemsListener();
@@ -653,7 +687,9 @@ function setupEventListeners() {
       state.searchQuery = category || '';
       const searchInput = document.getElementById('search-input');
       if (searchInput) searchInput.value = category || '';
-      renderCatalog();
+      if (document.getElementById('products-container')) {
+        renderCatalog();
+      }
     });
   });
 
@@ -672,14 +708,18 @@ function setupEventListeners() {
     cartOffcanvasEl.addEventListener('show.bs.offcanvas', () => {
       const mobileBody = document.getElementById('cart-offcanvas-body');
       const cartCardContainer = document.getElementById('cart-card-container');
-      mobileBody.appendChild(cartCardContainer);
+      if (mobileBody && cartCardContainer) {
+        mobileBody.appendChild(cartCardContainer);
+      }
     });
 
     // Devolver el contenedor del carrito a la barra lateral de escritorio cuando se oculta
     cartOffcanvasEl.addEventListener('hide.bs.offcanvas', () => {
       const desktopSidebar = document.getElementById('cart-sidebar');
       const cartCardContainer = document.getElementById('cart-card-container');
-      desktopSidebar.appendChild(cartCardContainer);
+      if (desktopSidebar && cartCardContainer) {
+        desktopSidebar.appendChild(cartCardContainer);
+      }
     });
   }
 
@@ -714,7 +754,9 @@ function setupEventListeners() {
 
       // Actualizar el DOM y recargar catálogo
       updateCartDOM();
-      fetchProducts();
+      if (document.getElementById('products-container')) {
+        fetchProducts();
+      }
     });
   }
 }
@@ -742,4 +784,125 @@ function handleCartClick(e) {
   } else if (action === 'delete') {
     removeItemFromCart(id);
   }
+}
+
+// ==========================================
+// 7. LÓGICA DE REGISTRO ASÍNCRONA (MERCADO LIBRE STYLE)
+// ==========================================
+
+function setupRegisterFormValidation() {
+  const form = document.getElementById('register-form');
+  const nameInput = document.getElementById('register-name');
+  const emailInput = document.getElementById('register-email');
+  const phoneInput = document.getElementById('register-phone');
+  const passwordInput = document.getElementById('register-password');
+  const btnSubmit = document.getElementById('btn-submit-register');
+  const alertError = document.getElementById('alert-error');
+
+  if (!form || !nameInput || !emailInput || !phoneInput || !passwordInput || !btnSubmit || !alertError) return;
+
+  const inputs = [nameInput, emailInput, phoneInput, passwordInput];
+
+  // Validaciones dinámicas
+  inputs.forEach(input => {
+    input.addEventListener('input', () => {
+      validateField(input);
+      validateFormState();
+    });
+    input.addEventListener('blur', () => {
+      validateField(input);
+      validateFormState();
+    });
+  });
+
+  function validateField(input) {
+    let isValid = true;
+
+    if (input.id === 'register-name') {
+      const val = input.value.trim();
+      const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,}$/;
+      isValid = nameRegex.test(val);
+    } else if (input.id === 'register-email') {
+      isValid = EMAIL_REGEX.test(input.value.trim());
+    } else if (input.id === 'register-phone') {
+      const val = input.value.trim().replace(/\s+/g, '');
+      isValid = PHONE_REGEX.test(val);
+    } else if (input.id === 'register-password') {
+      isValid = input.value.length >= 6;
+    }
+
+    if (isValid) {
+      input.classList.remove('is-invalid');
+      input.classList.add('is-valid');
+    } else {
+      input.classList.remove('is-valid');
+      input.classList.add('is-invalid');
+    }
+
+    return isValid;
+  }
+
+  function validateFormState() {
+    const isNameValid = nameInput.value.trim().length >= 3 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nameInput.value);
+    const isEmailValid = EMAIL_REGEX.test(emailInput.value.trim());
+    const isPhoneValid = PHONE_REGEX.test(phoneInput.value.trim().replace(/\s+/g, ''));
+    const isPasswordValid = passwordInput.value.length >= 6;
+
+    const isFormValid = isNameValid && isEmailValid && isPhoneValid && isPasswordValid;
+    btnSubmit.disabled = !isFormValid;
+
+    return isFormValid;
+  }
+
+  // Interceptar submit
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!validateFormState()) return;
+
+    // Deshabilitar botón inmediatamente para prevenir doble clic
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Procesando...';
+    alertError.classList.add('d-none'); // Ocultar alerta de error previa
+
+    const userData = {
+      name: nameInput.value.trim(),
+      email: emailInput.value.trim(),
+      phone: phoneInput.value.trim(),
+      password: passwordInput.value
+    };
+
+    try {
+      const response = await fetch('/api/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al registrar la cuenta.');
+      }
+
+      alert('¡Cuenta creada con éxito!');
+      
+      // Guardar nombre del usuario en localStorage
+      localStorage.setItem('user-registered-name', userData.name);
+      
+      window.location.href = 'index.html';
+
+    } catch (error) {
+      console.error('Error en registro:', error);
+      
+      // Mostrar contenedor de alerta y re-habilitar botón
+      alertError.textContent = error.message;
+      alertError.classList.remove('d-none');
+      
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Crear cuenta';
+    }
+  });
 }

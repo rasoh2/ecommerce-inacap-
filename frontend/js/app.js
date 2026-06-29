@@ -1,13 +1,15 @@
 /*
   CyberShop - Frontend Core Application
   Desarrollado por Nova (Frontend Engineer) y Milo (Visual Director) - ai-team-dev
-  Asistido por IA para expresiones regulares, sanitización y optimización DOM.
+  Refactorizado para diseño de alta conversión de Mercado Libre y Vanilla JS puro.
+  Asistido por IA para expresiones regulares, sanitización, buscador y optimización DOM.
 */
 
 // Estado global en memoria del cliente
 const state = {
   products: [],
-  cart: []
+  cart: [],
+  searchQuery: '' // Búsqueda de catálogo
 };
 
 // URL base de la API
@@ -25,10 +27,19 @@ document.addEventListener('DOMContentLoaded', () => {
   productModal = new bootstrap.Modal(document.getElementById('productDetailModal'));
   
   loadCartFromStorage();
+  loadComunaFromStorage();
   fetchProducts();
   setupEventListeners();
   setupFormValidation();
 });
+
+// Cargar comuna desde storage para persistencia de ubicación
+function loadComunaFromStorage() {
+  const savedComuna = localStorage.getItem('user-comuna');
+  if (savedComuna && document.getElementById('user-comuna')) {
+    document.getElementById('user-comuna').textContent = savedComuna;
+  }
+}
 
 // ==========================================
 // 1. OBTENCIÓN DE DATOS (API FETCH)
@@ -51,18 +62,27 @@ async function fetchProducts() {
 }
 
 // ==========================================
-// 2. RENDERIZACIÓN DEL DOM (PREVENCIÓN XSS)
+// 2. RENDERIZACIÓN DEL DOM (ESTILO MERCADO LIBRE)
 // ==========================================
 
-// Renderizar Catálogo de Productos
+// Renderizar Catálogo de Productos (Optimizado con grilla Mercado Libre)
 function renderCatalog() {
   const container = document.getElementById('products-container');
   container.textContent = ''; // Limpiar skeletons de forma segura
 
-  if (state.products.length === 0) {
+  // Filtrar productos según el buscador
+  const filteredProducts = state.products.filter(product => {
+    if (!state.searchQuery) return true;
+    const query = state.searchQuery.toLowerCase();
+    return product.name.toLowerCase().includes(query) || 
+           product.description.toLowerCase().includes(query) ||
+           product.category.toLowerCase().includes(query);
+  });
+
+  if (filteredProducts.length === 0) {
     const emptyMsg = document.createElement('p');
-    emptyMsg.className = 'text-muted text-center my-5';
-    emptyMsg.textContent = 'No hay productos disponibles en este momento.';
+    emptyMsg.className = 'text-muted text-center my-5 col-12';
+    emptyMsg.textContent = 'No hay productos disponibles para tu búsqueda.';
     container.appendChild(emptyMsg);
     return;
   }
@@ -70,43 +90,46 @@ function renderCatalog() {
   // Usar DocumentFragment para evitar múltiples reflows del DOM
   const fragment = document.createDocumentFragment();
 
-  state.products.forEach(product => {
+  filteredProducts.forEach(product => {
     const col = document.createElement('div');
     col.className = 'col';
 
     const article = document.createElement('article');
-    article.className = 'card h-100 bg-surface border-dark card-hover-effect';
+    article.className = 'card h-100 bg-surface border-light card-hover-effect';
     article.id = `product-card-${product._id}`;
+
+    // Contenedor Cuadrado Perfecto de la Imagen
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'img-container-square';
 
     // Imagen
     const img = document.createElement('img');
     img.src = product.imageUrl;
-    img.className = 'card-img-top p-3 rounded';
     img.alt = product.name;
     img.loading = 'lazy';
+    imgContainer.appendChild(img);
     
     // Cuerpo de la tarjeta
     const body = document.createElement('div');
-    body.className = 'card-body d-flex flex-column';
+    body.className = 'card-body d-flex flex-column p-3';
 
-    const badge = document.createElement('span');
-    badge.className = 'badge bg-secondary align-self-start mb-2';
-    badge.textContent = product.category;
+    // Etiqueta destacada de envío gratis en verde
+    const freeShipping = document.createElement('span');
+    freeShipping.className = 'free-shipping-tag';
+    freeShipping.textContent = 'Envío gratis';
 
+    // Precio en tamaño grande y visible
+    const price = document.createElement('div');
+    price.className = 'product-price-ml';
+    price.textContent = `$${product.price.toLocaleString('es-CL')}`;
+
+    // Título del producto en gris oscuro con límite de 2 líneas
     const title = document.createElement('h3');
-    title.className = 'h5 card-title text-white';
+    title.className = 'product-title-ml';
     title.textContent = product.name;
 
-    const desc = document.createElement('p');
-    desc.className = 'card-text text-muted small flex-grow-1';
-    desc.textContent = product.description;
-
     const footer = document.createElement('div');
-    footer.className = 'd-flex justify-content-between align-items-center mt-3';
-
-    const price = document.createElement('span');
-    price.className = 'fs-5 fw-bold text-success';
-    price.textContent = `$${product.price.toLocaleString('es-CL')}`;
+    footer.className = 'd-flex justify-content-between align-items-center mt-auto pt-2 border-top border-light';
 
     // Botón de detalle
     const btnDetail = document.createElement('button');
@@ -127,19 +150,18 @@ function renderCatalog() {
       btnAdd.className = 'btn btn-sm btn-outline-danger';
     }
 
-    // Ensamblar elementos de forma segura (sin innerHTML)
-    footer.appendChild(price);
+    // Ensamblar de forma segura
     const btnsDiv = document.createElement('div');
     btnsDiv.appendChild(btnDetail);
     btnsDiv.appendChild(btnAdd);
     footer.appendChild(btnsDiv);
 
-    body.appendChild(badge);
+    body.appendChild(freeShipping);
+    body.appendChild(price);
     body.appendChild(title);
-    body.appendChild(desc);
     body.appendChild(footer);
 
-    article.appendChild(img);
+    article.appendChild(imgContainer);
     article.appendChild(body);
     col.appendChild(article);
     
@@ -158,7 +180,7 @@ function renderCatalogError() {
   col.className = 'col-12 text-center my-5';
 
   const alertDiv = document.createElement('div');
-  alertDiv.className = 'alert alert-danger-custom d-inline-block p-4 border border-danger rounded';
+  alertDiv.className = 'alert alert-danger-custom d-inline-block p-4 border rounded';
   alertDiv.setAttribute('role', 'alert');
 
   const title = document.createElement('h3');
@@ -176,8 +198,8 @@ function renderCatalogError() {
   btnRetry.addEventListener('click', () => {
     container.innerHTML = `
       <div class="col skeleton-placeholder">
-        <div class="card h-100 bg-surface border-dark p-3">
-          <div class="skeleton img-placeholder mb-3" style="height: 180px; width: 100%;"></div>
+        <div class="card h-100 bg-surface border-light p-3">
+          <div class="skeleton img-placeholder mb-3" style="width: 100%;"></div>
           <div class="skeleton" style="height: 20px; width: 80%;"></div>
         </div>
       </div>
@@ -207,24 +229,26 @@ function showProductDetail(productId) {
   img.src = product.imageUrl;
   img.className = 'img-fluid rounded mb-3 w-100';
   img.alt = product.name;
+  img.style.maxHeight = '300px';
+  img.style.objectFit = 'contain';
 
   const category = document.createElement('span');
   category.className = 'badge bg-secondary mb-2';
   category.textContent = product.category;
 
   const desc = document.createElement('p');
-  desc.className = 'text-muted';
+  desc.className = 'text-muted mt-2';
   desc.textContent = product.description;
 
   const infoDiv = document.createElement('div');
-  infoDiv.className = 'd-flex justify-content-between align-items-center mt-4';
+  infoDiv.className = 'd-flex justify-content-between align-items-center mt-4 pt-3 border-top';
 
   const price = document.createElement('span');
-  price.className = 'fs-4 fw-bold text-success';
+  price.className = 'fs-4 fw-bold text-dark';
   price.textContent = `$${product.price.toLocaleString('es-CL')}`;
 
   const stock = document.createElement('span');
-  stock.className = `badge ${product.stock > 5 ? 'bg-success' : product.stock > 0 ? 'bg-warning' : 'bg-danger'}`;
+  stock.className = `badge ${product.stock > 5 ? 'bg-success' : product.stock > 0 ? 'bg-warning text-dark' : 'bg-danger'}`;
   stock.textContent = product.stock > 0 ? `Stock: ${product.stock} unidades` : 'Agotado';
 
   infoDiv.appendChild(price);
@@ -293,6 +317,7 @@ function saveCartToStorage() {
   localStorage.setItem('cart', JSON.stringify(state.cart));
 }
 
+// Cargar carrito del LocalStorage y validar tipo Array (Tarea F1)
 function loadCartFromStorage() {
   const stored = localStorage.getItem('cart');
   if (stored) {
@@ -312,7 +337,7 @@ function loadCartFromStorage() {
   }
 }
 
-// Actualizar Vista del Carrito en el DOM
+// Actualizar Vista del Carrito en el DOM (Compatibilidad con tema claro)
 function updateCartDOM() {
   const container = document.getElementById('cart-items-container');
   container.textContent = ''; // Limpiar de forma segura
@@ -349,11 +374,11 @@ function updateCartDOM() {
     info.className = 'cart-item-info';
 
     const name = document.createElement('span');
-    name.className = 'd-block text-white fw-medium small';
+    name.className = 'd-block text-dark fw-medium small'; // Modificado text-white -> text-dark para visibilidad
     name.textContent = item.name;
 
     const price = document.createElement('span');
-    price.className = 'text-success small';
+    price.className = 'text-success small fw-medium';
     price.textContent = `$${item.price.toLocaleString('es-CL')} x ${item.quantity}`;
 
     info.appendChild(name);
@@ -370,9 +395,9 @@ function updateCartDOM() {
     btnMinus.dataset.action = 'minus';
     btnMinus.dataset.id = item.productId;
 
-    // Indicador cantidad
+    // Indicador cantidad (Modificado text-white -> text-dark)
     const qtySpan = document.createElement('span');
-    qtySpan.className = 'text-white px-1';
+    qtySpan.className = 'text-dark px-1 fw-bold';
     qtySpan.textContent = item.quantity;
 
     // Botón más
@@ -498,6 +523,9 @@ function validateCheckoutForm() {
 
 async function processCheckout() {
   const btnSubmit = document.getElementById('btn-submit-checkout');
+  
+  // Prevención inmediata de doble clic (Tarea F3)
+  if (btnSubmit.disabled) return;
   btnSubmit.disabled = true;
   btnSubmit.textContent = 'Procesando...';
 
@@ -587,8 +615,47 @@ function setupEventListeners() {
     }
   });
 
-  // Delegación de eventos en el carrito (Optimizado para evitar memory leaks - Asistido por IA)
+  // Delegación de eventos en el carrito (Tarea F4)
   bindCartItemsListener();
+
+  // Buscador de Catálogo (Fila Superior)
+  const searchForm = document.getElementById('search-form');
+  if (searchForm) {
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        state.searchQuery = searchInput.value.trim();
+        renderCatalog();
+      }
+    });
+  }
+
+  // Selector de Ubicación (Fila Inferior - Persistencia Local)
+  const btnLocation = document.getElementById('btn-change-location');
+  if (btnLocation) {
+    btnLocation.addEventListener('click', () => {
+      const newComuna = prompt('Introduce tu comuna para el despacho:', 'Santiago');
+      if (newComuna && newComuna.trim() !== '') {
+        const comunaName = newComuna.trim();
+        document.getElementById('user-comuna').textContent = comunaName;
+        localStorage.setItem('user-comuna', comunaName);
+      }
+    });
+  }
+
+  // Enlaces de Categorías dropdown y links
+  const categoryItems = document.querySelectorAll('.categories-nav .dropdown-item');
+  categoryItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const category = e.target.dataset.category;
+      state.searchQuery = category || '';
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.value = category || '';
+      renderCatalog();
+    });
+  });
 
   // Event listener y movimiento responsivo del carrito en móvil (Sin clonación - Asistido por IA)
   const btnToggleMobile = document.getElementById('btn-toggle-cart-mobile');
@@ -652,6 +719,7 @@ function setupEventListeners() {
   }
 }
 
+// Delegación de Eventos global para el carrito estático (Tarea F4)
 function bindCartItemsListener() {
   const cartItemsContainer = document.getElementById('cart-items-container');
   if (cartItemsContainer) {

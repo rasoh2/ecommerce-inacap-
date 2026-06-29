@@ -3,27 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CyberShop - E-commerce Premium</title>
+  <title>CyberShop - E-commerce Mercado Libre Premium</title>
   <!-- Google Fonts & Bootstrap 5 CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/index.css">
 </head>
 <body class="bg-base text-main">
 
-  <!-- Encabezado de Navegación -->
-  <header class="navbar navbar-expand-lg sticky-top">
-    <div class="container">
-      <a class="navbar-brand fs-4" href="#">CyberShop</a>
-      <div class="d-flex align-items-center">
-        <!-- Botón para ver el carrito en móvil / Indicador -->
-        <button class="btn btn-primary position-relative d-lg-none me-2" id="btn-toggle-cart-mobile" aria-label="Ver carrito">
-          🛒 Carrito
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-badge-mobile">0</span>
-        </button>
+  <!-- 1. Encabezado de Navegación de Doble Fila (Estilo Mercado Libre) -->
+  <header class="navbar-ml sticky-top">
+    <div class="container-fluid px-lg-5">
+      
+      <!-- Fila Superior -->
+      <div class="row align-items-center py-2 gx-3 gy-2">
+        <!-- Logo -->
+        <div class="col-4 col-md-2 d-flex align-items-center">
+          <a class="navbar-brand-ml" href="#">CyberShop</a>
+        </div>
+        <!-- Buscador Gigante -->
+        <div class="col-8 col-md-7">
+          <form class="d-flex search-bar-container" role="search" id="search-form">
+            <input type="search" class="form-control search-input" id="search-input" placeholder="Buscar productos, marcas y más..." aria-label="Buscar">
+            <button class="btn btn-search" type="submit" aria-label="Buscar">
+              🔍
+            </button>
+          </form>
+        </div>
+        <!-- Beneficios -->
+        <div class="col-12 col-md-3 text-end d-none d-md-block">
+          <a href="#" class="benefits-link text-decoration-none">
+            ⚡ Envío gratis y rápido con CyberPuntos
+          </a>
+        </div>
       </div>
+      
+      <!-- Fila Inferior -->
+      <div class="row align-items-center pb-2 gx-3 gy-2 border-top-ml">
+        <!-- Selector de Ubicación (Comuna) -->
+        <div class="col-6 col-md-3 d-flex align-items-center">
+          <div class="location-container d-flex align-items-center" id="btn-change-location" style="cursor: pointer;" title="Cambiar comuna">
+            <span class="location-icon me-1 fs-5">📍</span>
+            <div class="lh-sm">
+              <span class="d-block text-muted" style="font-size: 0.68rem; font-weight: 500;">Enviar a</span>
+              <span class="d-block text-dark fw-medium" id="user-comuna" style="font-size: 0.82rem;">Santiago (Comuna)</span>
+            </div>
+          </div>
+        </div>
+        <!-- Enlaces de Categorías -->
+        <div class="col-6 col-md-6 d-flex align-items-center justify-content-start justify-content-md-center">
+          <ul class="nav categories-nav d-none d-md-flex gap-3">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle px-1 text-muted" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.85rem;">
+                Categorías
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" data-category="">Todas las categorías</a></li>
+                <li><a class="dropdown-item" href="#" data-category="Tecnología">Tecnología</a></li>
+                <li><a class="dropdown-item" href="#" data-category="Auriculares">Auriculares</a></li>
+                <li><a class="dropdown-item" href="#" data-category="Smartphones">Smartphones</a></li>
+              </ul>
+            </li>
+            <li class="nav-item"><a class="nav-link px-1 text-muted" href="#" style="font-size: 0.85rem;">Ofertas</a></li>
+            <li class="nav-item"><a class="nav-link px-1 text-muted" href="#" style="font-size: 0.85rem;">Historial</a></li>
+            <li class="nav-item"><a class="nav-link px-1 text-muted" href="#" style="font-size: 0.85rem;">Ayuda</a></li>
+          </ul>
+        </div>
+        <!-- Accesos de Usuario y Carrito -->
+        <div class="col-12 col-md-3 d-flex align-items-center justify-content-end gap-3">
+          <div class="user-access d-none d-lg-flex gap-2">
+            <a href="#" class="text-decoration-none text-muted" style="font-size: 0.8rem;">Crea tu cuenta</a>
+            <a href="#" class="text-decoration-none text-muted" style="font-size: 0.8rem;">Ingresa</a>
+          </div>
+          <!-- Carrito con indicador dinámico -->
+          <button class="btn btn-cart-ml position-relative" id="btn-toggle-cart-mobile" aria-label="Ver carrito">
+            🛒 <span class="d-none d-md-inline ms-1" style="font-size: 0.9rem;">Carrito</span>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-badge-mobile">0</span>
+          </button>
+        </div>
+      </div>
+      
     </div>
   </header>
 
@@ -33,13 +94,13 @@
       
       <!-- Sección del Catálogo (Izquierda) -->
       <section class="col-lg-8" id="catalog-section" aria-labelledby="catalog-title">
-        <h2 class="mb-4 text-brand" id="catalog-title">Catálogo de Productos</h2>
+        <h2 class="mb-4" id="catalog-title" style="font-size: 1.5rem; font-weight: 500;">Catálogo de Productos</h2>
         <!-- Contenedor dinámico de productos -->
         <div class="row row-cols-1 row-cols-md-2 g-4" id="products-container">
           <!-- Placeholders de Carga (Skeletons) -->
           <div class="col skeleton-placeholder">
-            <div class="card h-100 bg-surface border-dark p-3">
-              <div class="skeleton img-placeholder mb-3" style="height: 180px; width: 100%;"></div>
+            <div class="card h-100 bg-surface border-light p-3">
+              <div class="skeleton img-placeholder mb-3" style="width: 100%;"></div>
               <div class="skeleton mb-2" style="height: 20px; width: 40%;"></div>
               <div class="skeleton mb-2" style="height: 24px; width: 80%;"></div>
               <div class="skeleton mb-3" style="height: 40px; width: 100%;"></div>
@@ -50,8 +111,8 @@
             </div>
           </div>
           <div class="col skeleton-placeholder">
-            <div class="card h-100 bg-surface border-dark p-3">
-              <div class="skeleton img-placeholder mb-3" style="height: 180px; width: 100%;"></div>
+            <div class="card h-100 bg-surface border-light p-3">
+              <div class="skeleton img-placeholder mb-3" style="width: 100%;"></div>
               <div class="skeleton mb-2" style="height: 20px; width: 40%;"></div>
               <div class="skeleton mb-2" style="height: 24px; width: 80%;"></div>
               <div class="skeleton mb-3" style="height: 40px; width: 100%;"></div>
@@ -66,19 +127,19 @@
 
       <!-- Sección Lateral del Carrito y Checkout (Derecha) -->
       <aside class="col-lg-4 d-none d-lg-block" id="cart-sidebar" aria-labelledby="cart-title">
-        <div class="card bg-surface border-dark p-4 sticky-top-offset" id="cart-card-container">
+        <div class="card bg-surface border-light p-4 sticky-top-offset" id="cart-card-container">
           
           <!-- Wrapper para el contenido del carrito y formulario de checkout (Asistido por IA) -->
           <div id="cart-content-wrapper" class="d-flex flex-column h-100">
-            <h2 class="h4 mb-4 text-brand" id="cart-title">Tu Carrito</h2>
+            <h2 class="h4 mb-4" id="cart-title" style="font-size: 1.25rem; font-weight: 600;">Tu Carrito</h2>
             
-            <!-- Lista de Items en el Carrito -->
+            <!-- Lista de Items en el Carrito (Delegación de eventos global) -->
             <div class="cart-items-list mb-4" id="cart-items-container" role="list">
               <p class="text-muted text-center my-4" id="empty-cart-message">El carrito está vacío.</p>
             </div>
 
             <!-- Resumen de Totales -->
-            <div class="border-top border-dark pt-3 mb-4">
+            <div class="border-top border-light pt-3 mb-4">
               <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Subtotal</span>
                 <span id="cart-subtotal">$0</span>
@@ -92,26 +153,26 @@
             <!-- Formulario de Checkout -->
             <form id="checkout-form" class="needs-validation" novalidate>
               <div class="mb-3">
-                <label for="checkout-name" class="form-label">Nombre Completo</label>
-                <input type="text" class="form-control bg-dark border-dark text-white" id="checkout-name" required placeholder="Juan Pérez">
+                <label for="checkout-name" class="form-label" style="font-size: 0.85rem; font-weight: 500;">Nombre Completo</label>
+                <input type="text" class="form-control" id="checkout-name" required placeholder="Juan Pérez">
                 <div class="invalid-feedback" id="name-feedback">El nombre debe tener al menos 3 caracteres y solo letras.</div>
               </div>
               
               <div class="mb-3">
-                <label for="checkout-email" class="form-label">Correo Electrónico</label>
-                <input type="email" class="form-control bg-dark border-dark text-white" id="checkout-email" required placeholder="juan@example.com">
+                <label for="checkout-email" class="form-label" style="font-size: 0.85rem; font-weight: 500;">Correo Electrónico</label>
+                <input type="email" class="form-control" id="checkout-email" required placeholder="juan@example.com">
                 <div class="invalid-feedback" id="email-feedback">Por favor introduce un correo electrónico válido.</div>
               </div>
 
               <div class="mb-3">
-                <label for="checkout-phone" class="form-label">Teléfono de Contacto</label>
-                <input type="text" class="form-control bg-dark border-dark text-white" id="checkout-phone" required placeholder="+56912345678">
+                <label for="checkout-phone" class="form-label" style="font-size: 0.85rem; font-weight: 500;">Teléfono de Contacto</label>
+                <input type="text" class="form-control" id="checkout-phone" required placeholder="+56912345678">
                 <div class="invalid-feedback" id="phone-feedback">Formato de teléfono no válido (+569XXXXXXXX o 9XXXXXXXX).</div>
               </div>
 
               <div class="mb-3">
-                <label for="checkout-payment" class="form-label">Método de Pago</label>
-                <select class="form-select bg-dark border-dark text-white" id="checkout-payment" required>
+                <label for="checkout-payment" class="form-label" style="font-size: 0.85rem; font-weight: 500;">Método de Pago</label>
+                <select class="form-select" id="checkout-payment" required>
                   <option value="" disabled selected>Selecciona una opción...</option>
                   <option value="transferencia">Transferencia Bancaria</option>
                   <option value="tarjeta">Tarjeta de Crédito/Débito</option>
@@ -129,9 +190,9 @@
           <!-- Wrapper para el mensaje de éxito del checkout (Asistido por IA) -->
           <div id="checkout-success-wrapper" class="d-none text-center py-5">
             <div class="mb-3 text-success" style="font-size: 3.5rem;">✓</div>
-            <h3 class="h4 text-white mb-2">¡Compra Confirmada!</h3>
+            <h3 class="h4 text-dark mb-2">¡Compra Confirmada!</h3>
             <p class="text-muted small mb-4">Tu orden ha sido registrada exitosamente en nuestro sistema.</p>
-            <div class="bg-dark p-3 rounded mb-4 border border-secondary">
+            <div class="bg-light-box p-3 rounded mb-4">
               <span class="text-muted d-block small mb-1">ID de la Orden:</span>
               <code class="text-success fw-bold" id="success-order-id" style="word-break: break-all;"></code>
             </div>
@@ -149,10 +210,10 @@
   <!-- Modal de Detalle de Producto -->
   <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content bg-surface border-dark text-white">
-        <div class="modal-header border-dark">
+      <div class="modal-content bg-surface border-light text-dark">
+        <div class="modal-header border-light">
           <h5 class="modal-title" id="detail-product-title">Detalle del Producto</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body" id="detail-product-body">
           <!-- Renderizado dinámico desde JS -->
@@ -162,17 +223,17 @@
   </div>
 
   <!-- Offcanvas Carrito Móvil -->
-  <div class="offcanvas offcanvas-end bg-surface text-white border-start border-dark" tabindex="-1" id="cartOffcanvas" aria-labelledby="offcanvasCartLabel">
-    <div class="offcanvas-header border-bottom border-dark">
-      <h5 class="offcanvas-title text-brand" id="offcanvasCartLabel">Tu Carrito</h5>
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+  <div class="offcanvas offcanvas-end bg-surface text-dark border-start border-light" tabindex="-1" id="cartOffcanvas" aria-labelledby="offcanvasCartLabel">
+    <div class="offcanvas-header border-bottom border-light">
+      <h5 class="offcanvas-title" id="offcanvasCartLabel" style="font-weight: 600;">Tu Carrito</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>
     <div class="offcanvas-body" id="cart-offcanvas-body">
       <!-- Se inyectará el contenido del carrito de forma responsiva -->
     </div>
   </div>
 
-  <footer class="text-center py-4 border-top border-dark mt-auto">
+  <footer class="text-center py-4 border-top border-light mt-auto" style="background-color: #ffffff;">
     <p class="text-muted small mb-0">&copy; 2026 CyberShop. Evaluación Sumativa N°2 - INACAP Maipú.</p>
   </footer>
 

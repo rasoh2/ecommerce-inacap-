@@ -1,21 +1,21 @@
 /* 
-  CyberShop - Custom Stylesheet (Dark Mode Premium)
-  Diseñado por Milo (Art/Visual Director) - ai-team-dev
-  Asistido por IA para optimizaciones de contraste y animación
+  CyberShop - Custom Stylesheet (Mercado Libre High-Conversion Theme)
+  Refactorizado por el Senior Frontend Engineer (swe) - ai-team-dev
 */
 
 :root {
-  --bg-base: #090d16;
-  --bg-surface: #111827;
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-success: #10b981;
-  --color-success-hover: #059669;
+  --bg-base: #EEEEEE; /* Fondo gris claro institucional de Mercado Libre */
+  --bg-surface: #FFFFFF; /* Tarjetas y contenedores blancos */
+  --color-primary: #3483FA; /* Azul Mercado Libre para botones principales */
+  --color-primary-hover: #2968c8;
+  --color-success: #00A650; /* Verde Mercado Libre para Envío Gratis y Checkout */
+  --color-success-hover: #008741;
   --color-error: #ef4444;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border-color: #1f2937;
-  --transition-speed: 0.3s;
+  --text-main: #333333; /* Gris oscuro para textos principales */
+  --text-muted: #666666; /* Gris medio para descripciones y metadatos */
+  --border-color: #E6E6E6; /* Borde sutil */
+  --transition-speed: 0.2s;
+  --ml-yellow: #FFF159; /* Amarillo institucional de Mercado Libre */
 }
 
 body {
@@ -31,79 +31,252 @@ h1, h2, h3, h4, .text-brand {
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   letter-spacing: -0.025em;
+  color: var(--text-main);
 }
 
-/* Navbar */
-.navbar {
-  background-color: rgba(9, 13, 22, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+/* 1. Arquitectura de la Barra de Navegación (Header de Doble Fila) */
+.navbar-ml {
+  background-color: var(--ml-yellow);
   border-bottom: 1px solid var(--border-color);
-  z-index: 1030;
+  width: 100%;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
 }
 
-.navbar-brand {
+.navbar-brand-ml {
   font-family: 'Outfit', sans-serif;
-  font-weight: 600;
-  color: var(--text-main) !important;
-  background: linear-gradient(135deg, #a5b4fc 0%, var(--color-primary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #2d3277; /* Azul oscuro para contraste de marca */
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
 }
 
-/* Cards de Productos */
-.card-hover-effect {
-  transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1), 
-              box-shadow var(--transition-speed) ease-in-out,
-              border-color var(--transition-speed);
+.navbar-brand-ml:hover {
+  opacity: 0.85;
+  color: #2d3277;
+}
+
+/* Buscador Gigante */
+.search-bar-container {
+  width: 100%;
+  position: relative;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
+  border-radius: 4px;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.search-input {
+  border: none !important;
+  border-radius: 4px 0 0 4px !important;
+  height: 40px;
+  padding-left: 16px;
+  padding-right: 48px;
+  background-color: #ffffff !important;
+  color: #333333 !important;
+}
+
+.search-input:focus {
+  box-shadow: none !important;
+  color: #333333 !important;
+}
+
+.btn-search {
+  border: none;
+  background: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666666;
+  border-left: 1px solid #e6e6e6;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-search:hover {
+  background-color: #f5f5f5;
+}
+
+.border-top-ml {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.benefits-link {
+  font-size: 0.85rem;
+  color: #333333;
+  font-weight: 500;
+}
+
+.benefits-link:hover {
+  color: #000000;
+}
+
+/* Ubicación Comuna */
+.location-container {
+  color: #333333 !important;
+  transition: opacity 0.2s;
+}
+
+.location-container:hover {
+  opacity: 0.8;
+}
+
+/* Navegación Categorías */
+.categories-nav .nav-link {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-muted) !important;
+  transition: color 0.2s;
+}
+
+.categories-nav .nav-link:hover {
+  color: #000000 !important;
+}
+
+/* Botón Carrito */
+.btn-cart-ml {
+  background: none;
+  border: none;
+  color: #333333;
+  font-size: 1.15rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-cart-ml:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 2. Grilla del Catálogo (Cards blancas de Mercado Libre) */
+.card {
+  border: 1px solid var(--border-color) !important;
+  border-radius: 4px !important;
+  background-color: var(--bg-surface);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: box-shadow var(--transition-speed), border-color var(--transition-speed);
 }
 
 .card-hover-effect:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
-  border-color: var(--color-primary) !important;
+  transform: none; /* Sin traslación vertical al estilo flat de Mercado Libre */
+  box-shadow: 0 7px 16px 0 rgba(0, 0, 0, 0.1) !important;
+  border-color: #cccccc !important;
 }
 
-.card-img-top {
+/* Contenedor Cuadrado Perfecto de Imagen */
+.img-container-square {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.img-container-square img {
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-  height: 200px;
-  background-color: rgba(255, 255, 255, 0.02);
-  transition: opacity var(--transition-speed);
+  padding: 16px;
+  transition: transform 0.3s ease;
 }
 
-/* Skeletons */
+.img-container-square:hover img {
+  transform: scale(1.04);
+}
+
+/* Etiquetas del Producto */
+.free-shipping-tag {
+  color: var(--color-success);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.product-price-ml {
+  font-size: 1.55rem;
+  font-weight: 400;
+  color: #333333;
+  margin-bottom: 6px;
+}
+
+.product-title-ml {
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-bottom: 12px;
+  line-height: 1.4;
+  /* Límite de 2 líneas */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 2.8em;
+}
+
+/* Skeletons para carga clara */
 @keyframes pulse {
   0%, 100% {
     opacity: 0.6;
   }
   50% {
-    opacity: 0.25;
+    opacity: 0.3;
   }
 }
 
 .skeleton {
   animation: pulse 1.5s infinite ease-in-out;
-  background-color: #1e293b;
-  border-radius: 6px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+}
+
+.img-placeholder {
+  aspect-ratio: 1 / 1;
 }
 
 /* Formulario e Inputs */
+.form-control, .form-select {
+  background-color: #ffffff !important;
+  border: 1px solid #cccccc !important;
+  color: var(--text-main) !important;
+  border-radius: 4px !important;
+  font-size: 0.95rem;
+}
+
 .form-control:focus, .form-select:focus {
-  background-color: #0f172a !important;
+  background-color: #ffffff !important;
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25) !important;
+  box-shadow: 0 0 0 0.2rem rgba(52, 131, 250, 0.2) !important;
   color: var(--text-main) !important;
 }
 
 .form-control::placeholder {
-  color: #4b5563;
+  color: #999999;
 }
 
 /* Botones */
+.btn {
+  border-radius: 4px !important;
+  font-weight: 500;
+}
+
 .btn-primary {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
-  font-weight: 500;
+  color: #ffffff;
   transition: background-color var(--transition-speed), border-color var(--transition-speed);
 }
 
@@ -115,7 +288,7 @@ h1, h2, h3, h4, .text-brand {
 .btn-success {
   background-color: var(--color-success);
   border-color: var(--color-success);
-  font-weight: 500;
+  color: #ffffff;
 }
 
 .btn-success:hover, .btn-success:active, .btn-success:focus {
@@ -124,12 +297,12 @@ h1, h2, h3, h4, .text-brand {
 }
 
 .btn-success:disabled {
-  background-color: rgba(16, 185, 129, 0.3);
+  background-color: rgba(0, 166, 80, 0.3);
   border-color: transparent;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
 }
 
-/* Custom Bootstrap overrides */
+/* Carrito Barra Lateral (Ajustes de Tema Claro) */
 .bg-surface {
   background-color: var(--bg-surface) !important;
 }
@@ -138,11 +311,10 @@ h1, h2, h3, h4, .text-brand {
   color: var(--text-muted) !important;
 }
 
-/* Carrito Barra Lateral */
 .sticky-top-offset {
   position: sticky;
-  top: 100px;
-  max-height: calc(100vh - 140px);
+  top: 130px;
+  max-height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -152,12 +324,12 @@ h1, h2, h3, h4, .text-brand {
 .cart-items-list {
   overflow-y: auto;
   flex-grow: 1;
-  max-height: 200px;
+  max-height: 250px;
   min-height: 90px;
   padding-right: 4px;
 }
 
-/* Scrollbar Personalizada */
+/* Scrollbar Personalizada Clara */
 .cart-items-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -167,7 +339,7 @@ h1, h2, h3, h4, .text-brand {
 }
 
 .cart-items-list::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: #cccccc;
   border-radius: 3px;
 }
 
@@ -206,7 +378,14 @@ h1, h2, h3, h4, .text-brand {
 }
 
 .alert-danger-custom {
-  background-color: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.15);
+  color: var(--color-error);
+}
+
+/* Caja de éxito de orden de compra */
+.bg-light-box {
+  background-color: #f8f9fa;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main);
 }

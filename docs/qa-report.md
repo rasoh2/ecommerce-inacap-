@@ -190,3 +190,107 @@ curl -X POST http://localhost:5000/api/orders \
 | **F2: DRY Expresiones Regulares** | Constantes globales unificadas para el motor de expresiones regulares. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js) | 🟢 Pasa |
 | **F3: Anti-Doble Clic** | Control e inhabilitación inmediata de botones durante llamadas de red. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js) | 🟢 Pasa |
 | **F4: Event Delegation** | Listener estático único en `#cart-items-container` con descarte de listeners anteriores. | [app.js](file:///c:/Users/Sebastian/Desktop/Ecommerse/frontend/js/app.js) | 🟢 Pasa |
+
+---
+
+## 3. Escenarios de Prueba de Registro de Usuarios
+
+Esta sección detalla los casos de prueba específicos para certificar el correcto funcionamiento de la creación de cuentas de clientes, su persistencia y la encriptación mediante `bcrypt`.
+
+### Caso de Prueba 5: Registro Exitoso (Caso Feliz)
+* **Objetivo:** Validar que un nuevo usuario puede registrarse exitosamente en el sistema, que los datos se almacenan correctamente en MongoDB y que la contraseña se encripta de forma segura mediante el hook pre-save de Mongoose con `bcrypt`.
+
+#### Payload de Prueba (JSON)
+```json
+{
+  "name": "Pedro Perez",
+  "email": "pedro.perez@example.com",
+  "phone": "+56912345678",
+  "password": "password123"
+}
+```
+
+#### Ejecución con cURL (Terminal)
+```bash
+curl -X POST http://localhost:5000/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Pedro Perez",
+    "email": "pedro.perez@example.com",
+    "phone": "+56912345678",
+    "password": "password123"
+  }'
+```
+
+#### Resultados Esperados:
+1. El backend valida los formatos e ingresa los datos a Mongoose.
+2. Mongoose ejecuta el hook `pre('save')`, hasheando la contraseña `"password123"` en un hash de bcrypt de 60 caracteres e inserta el registro en la colección `users`.
+3. **Respuesta del Servidor:** Código de estado `201 Created` con:
+   ```json
+   {
+     "message": "Usuario registrado con éxito.",
+     "userId": "<ID_GENERADO_POR_MONGODB>"
+   }
+   ```
+4. El frontend intercepta la respuesta, muestra una alerta indicando "¡Cuenta creada con éxito!" y redirige al usuario a `index.html`.
+* **Estatus de Prueba:** 🟢 **PASADO**
+
+---
+
+### Caso de Prueba 6: Intento de Registro con Correo Duplicado (Caso de Borde)
+* **Objetivo:** Verificar que el sistema bloquea el registro si el correo electrónico ya existe en MongoDB, retornando una respuesta de error adecuada y mostrándola en la interfaz en tiempo real sin recargar la página.
+
+#### Pre-condición:
+Existe un usuario previamente registrado con el correo `pedro.perez@example.com` en MongoDB.
+
+#### Payload de Prueba (JSON)
+```json
+{
+  "name": "Pedro Duplicado",
+  "email": "pedro.perez@example.com",
+  "phone": "987654321",
+  "password": "otracontrasena"
+}
+```
+
+#### Ejecución con cURL (Terminal)
+```bash
+curl -X POST http://localhost:5000/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Pedro Duplicado",
+    "email": "pedro.perez@example.com",
+    "phone": "987654321",
+    "password": "otracontrasena"
+  }'
+```
+
+#### Resultados Esperados:
+1. El controlador en `authController.js` busca el correo utilizando `User.findOne({ email })` y detecta que ya existe.
+2. Detiene la inserción y retorna inmediatamente un error.
+3. **Respuesta del Servidor:** Código de estado `400 Bad Request` con:
+   ```json
+   {
+     "message": "El correo electrónico ya está registrado."
+   }
+   ```
+4. El frontend intercepta la respuesta fallida, remueve la clase `.d-none` del contenedor `#alert-error`, e inserta dinámicamente el texto `"El correo electrónico ya está registrado."` sin refrescar la página.
+* **Estatus de Prueba:** 🟢 **PASADO**
+
+---
+
+### Caso de Prueba 7: Pruebas de Formato de Teléfono Chileno (Backend)
+* **Objetivo:** Garantizar que el backend rechaza teléfonos que no cumplan con el estándar móvil chileno mediante la expresión regular de validación de Mongoose en `backend/models/User.js`.
+
+#### Escenarios de Entrada y Respuestas Evaluadas:
+
+| ID de Subprueba | Teléfono Enviado | Cumple Regex | Código Esperado | Mensaje de Respuesta Esperado | Estatus |
+| :--- | :--- | :---: | :---: | :--- | :---: |
+| **7.1 (Inválido)** | `12345678` (8 dígitos) | No | `400 Bad Request` | `El teléfono de contacto no es un número móvil chileno válido.` | 🟢 **PASADO** |
+| **7.2 (Fijo/Inválido)** | `+56222345678` (Fijo Santiago) | No | `400 Bad Request` | `El teléfono de contacto no es un número móvil chileno válido.` | 🟢 **PASADO** |
+| **7.3 (Válido Local)** | `987654321` (9 dígitos) | Sí | `201 Created` | `Usuario registrado con éxito.` | 🟢 **PASADO** |
+| **7.4 (Válido Int.)** | `+56987654321` (11 dígitos) | Sí | `201 Created` | `Usuario registrado con éxito.` | 🟢 **PASADO** |
+
+* **Regex de Validación en Mongoose:** `/^(?:\+?56)?9[0-9]{8}$/`
+* **Estatus de Prueba:** 🟢 **PASADO**
+
